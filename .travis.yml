@@ -9,7 +9,7 @@ jobs:
       name: "xUnit Tests"
       script:
         - dotnet restore
-        - dotnet test GatekeeperTest\GatekeeperTest.csproj
+        - dotnet test GatekeeperTest/GatekeeperTest.csproj
 
 notifications:
     slack: sem5640-2018:ouuibb583SpjRvEHwhoXE8qe
