@@ -1,0 +1,10 @@
+language: csharp
+solution: gatekeeper.sln
+mono: none
+dotnet: 2.1
+
+script:
+- dotnet restore
+
+notifications:
+    slack: sem5640-2018:ouuibb583SpjRvEHwhoXE8qe
