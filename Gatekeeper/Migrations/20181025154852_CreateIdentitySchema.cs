@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Gatekeeper.Data.Migrations
+namespace Gatekeeper.Migrations
 {
     public partial class CreateIdentitySchema : Migration
     {
