@@ -28,7 +28,7 @@ namespace Gatekeeper.Areas.Identity
                     .AddEntityFrameworkStores<GatekeeperContext>()
                     .AddDefaultTokenProviders();
 
-                services.AddIdentityServer()
+                services.AddIdentityServer(options => options.UserInteraction.LoginUrl = "/Identity/Account/Login")
                     .AddDeveloperSigningCredential()
                     .AddInMemoryPersistedGrants()
                     .AddInMemoryIdentityResources(IdentityConfig.GetIdentityResources())
