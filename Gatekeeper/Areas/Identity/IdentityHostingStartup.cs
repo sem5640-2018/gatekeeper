@@ -41,6 +41,7 @@ namespace Gatekeeper.Areas.Identity
                     .AddOperationalStore(options =>
                     {
                         options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+                        options.EnableTokenCleanup = true;
                     })
                     .AddAspNetIdentity<GatekeeperUser>();
             });
