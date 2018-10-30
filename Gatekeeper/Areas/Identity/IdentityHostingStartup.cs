@@ -17,10 +17,14 @@ namespace Gatekeeper.Areas.Identity
     {
         public void Configure(IWebHostBuilder builder)
         {
+            
+
             builder.ConfigureServices((context, services) => {
+                var dbConnectionString = context.Configuration.GetConnectionString("GatekeeperContextConnection");
+                var migrationsAssembly = "Gatekeeper";
+
                 services.AddDbContext<GatekeeperContext>(options =>
-                    options.UseSqlServer(
-                        context.Configuration.GetConnectionString("GatekeeperContextConnection")));
+                    options.UseSqlServer(dbConnectionString));
 
                 services.AddTransient<IEmailSender, EmailSender>();
 
@@ -30,10 +34,14 @@ namespace Gatekeeper.Areas.Identity
 
                 services.AddIdentityServer(options => options.UserInteraction.LoginUrl = "/Identity/Account/Login")
                     .AddDeveloperSigningCredential()
-                    .AddInMemoryPersistedGrants()
-                    .AddInMemoryIdentityResources(IdentityConfig.GetIdentityResources())
-                    .AddInMemoryApiResources(IdentityConfig.GetApiResources())
-                    .AddInMemoryClients(IdentityConfig.GetClients())
+                    .AddConfigurationStore(options =>
+                    {
+                        options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+                    })
+                    .AddOperationalStore(options =>
+                    {
+                        options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+                    })
                     .AddAspNetIdentity<GatekeeperUser>();
             });
         }
