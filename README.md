@@ -15,7 +15,7 @@ Gatekeeper is the OAuth2 authorization service for the AberFitness group project
 * [.NET Core SDK 2.1.x][dotnetsdk]
 * [LibMan CLI][libmancli]
 
-# Quick Start
+# Quick Start (Development)
 These instructions assume you're using the .NET CLI which comes as standard with the [.NET Core SDK][dotnetsdk].  You could alternatively use the tools available in Visual Studio.
 
 1. Install the [requirements](#requirements)
