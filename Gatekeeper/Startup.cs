@@ -52,7 +52,10 @@ namespace Gatekeeper
                 .AddEntityFrameworkStores<GatekeeperContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddIdentityServer(options => options.UserInteraction.LoginUrl = "/Identity/Account/Login")
+            services.AddIdentityServer(options => {
+                    options.UserInteraction.LoginUrl = "/Identity/Account/Login";
+                    options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
+                })
                 .AddDeveloperSigningCredential()
                 .AddConfigurationStore(options =>
                 {
