@@ -21,6 +21,8 @@ These instructions assume you're using the .NET CLI which comes as standard with
 1. Install the [requirements](#requirements)
 1. Install the project dependencies using `dotnet restore`
 1. Build the solution using with `dotnet build`
+1. Run any pending database migrations with `dotnet ef database update --context GatekeeperContext`
+   1. On the first run, you'll also need to run the database migrations for IdentityServer4's contexts with `dotnet ef database update --context ConfigurationDbContext` and `dotnet ef database update --context PersistedGrantDbContext`
 1. Run any pending database migrations using `dotnet ef database update`
 1. Run the app in development mode using `dotnet run --project Gatekeeper`
 1. Run tests using `dotnet test GatekeeperTest`
