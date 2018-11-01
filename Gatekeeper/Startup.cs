@@ -2,11 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Gatekeeper.Areas.Identity.Data;
+using Gatekeeper.Areas.Identity.Services;
+using Gatekeeper.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -33,11 +39,37 @@ namespace Gatekeeper
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            var dbConnectionString = Configuration.GetConnectionString("GatekeeperContextConnection");
+            var migrationsAssembly = "Gatekeeper";
+
+            services.AddDbContext<GatekeeperContext>(options =>
+                options.UseSqlServer(dbConnectionString));
+
+            services.AddTransient<IEmailSender, EmailSender>();
+
+            services.AddIdentity<GatekeeperUser, IdentityRole>()
+                .AddEntityFrameworkStores<GatekeeperContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddIdentityServer(options => options.UserInteraction.LoginUrl = "/Identity/Account/Login")
+                .AddDeveloperSigningCredential()
+                .AddConfigurationStore(options =>
+                {
+                    options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+                })
+                .AddOperationalStore(options =>
+                {
+                    options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+                    options.EnableTokenCleanup = true;
+                })
+                .AddAspNetIdentity<GatekeeperUser>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
