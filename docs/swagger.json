@@ -1,0 +1,107 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Gatekeeper user metadata API",
+    "version": "1.0.0",
+    "title": "Gatekeeper",
+    "contact": {
+      "email": "arl4@aber.ac.uk"
+    }
+  },
+  "tags": [
+    {
+      "name": "user",
+      "description": "User metadata"
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://staging-gatekeeper.aberfitness.dcs.aber.ac.uk",
+      "description": "Gatekeeper Staging instance"
+    }
+  ],
+  "paths": {
+    "/user/{UUID}": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get user metadata for a given user UUID",
+        "description": "Returns a single user",
+        "parameters": [
+          {
+            "name": "UUID",
+            "in": "path",
+            "description": "UUID of the user to lookup",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuidv4"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "403": {
+            "description": "Not authorised"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "OAuth2": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "OAuth2": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "/connect/token",
+            "refreshUrl": "/connect/token",
+            "scopes": "user_metadata"
+          }
+        }
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuidv4"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "GitHub Repository",
+    "url": "https://github.com/sem5640-2018/gatekeeper"
+  }
+}
