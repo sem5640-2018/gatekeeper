@@ -7,7 +7,7 @@ dotnet: 2.1
 branches:
   only:
     - master
-- development
+    - development
 
 jobs:
   include:
