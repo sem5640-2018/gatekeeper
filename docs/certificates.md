@@ -1,12 +1,18 @@
-# Token signing certificates
+# Application certificates
 
 ## Overview
 
-Gatekeeper uses a `X509Certificate2` to create and verify the tokens it issues.  These  are stored in the self-contained PXF format which includes both the certificate and the private key, and must be protected by an export password.
+Gatekeeper uses two `X509Certificate2` certificates:
+ * `is4cert.pfx` is used by IdentityServer4 to create and verify the tokens it issues.
+ * `dpkcert.pfx` is used to protect the Data Protection Keys which are self-managed by .NET Core.
+
+These self-contained PXF files contain both a certificate and a private key, and must be protected by an export password.
 
 The application loads certificates from the location specified in the [runtime configuration](runtime-configuration.md).
 
 ## Creating a certificate
+
+**These instructions show the generation of `is4cert.pfx`.  Generating `dpkcert.pfx` uses the exact same process, you just need to change any instance of `is4cert` to `dpkcert`.**
 
 #### 1. Install OpenSSL
 Linux/MacOS users probably already have this installed.  The easiest way for Windows users is to use [cmder](http://cmder.net/) which includes OpenSSL.

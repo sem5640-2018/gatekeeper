@@ -21,7 +21,7 @@ This section lists the basic steps required to correctly run the application in 
 These instructions are for the .NET CLI which comes as standard with the [.NET Core SDK][dotnetsdk].  You could also use the tools available in Visual Studio.
 
 1. Install the [requirements](#requirements)
-1. [Generate a token signing certificate](docs/token-certificates.md)
+1. [Generate the required certificates](docs/certificates.md)
 1. [Configure your environment](docs/runtime-configuration.md)
 1. Install the project dependencies using `dotnet restore`
 1. Build the solution using with `dotnet build`
