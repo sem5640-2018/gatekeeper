@@ -15,15 +15,18 @@ Gatekeeper is the OAuth2 authorization service for the AberFitness group project
 * [.NET Core SDK 2.1.x][dotnetsdk]
 * [LibMan CLI][libmancli]
 
-# Quick Start (Development)
-These instructions assume you're using the .NET CLI which comes as standard with the [.NET Core SDK][dotnetsdk].  You could alternatively use the tools available in Visual Studio.
+# Getting Started (Development)
+This section lists the basic steps required to correctly run the application in your development environment.  For production environments, read the documentation [here](docs/production-deployment.md).
+
+These instructions are for the .NET CLI which comes as standard with the [.NET Core SDK][dotnetsdk].  You could also use the tools available in Visual Studio.
 
 1. Install the [requirements](#requirements)
+1. [Generate the required certificates](docs/certificates.md)
+1. [Configure your environment](docs/runtime-configuration.md)
 1. Install the project dependencies using `dotnet restore`
 1. Build the solution using with `dotnet build`
 1. Run any pending database migrations with `dotnet ef database update --context GatekeeperContext`
    1. On the first run, you'll also need to run the database migrations for IdentityServer4's contexts with `dotnet ef database update --context ConfigurationDbContext` and `dotnet ef database update --context PersistedGrantDbContext`
-1. Run any pending database migrations using `dotnet ef database update`
 1. Run the app in development mode using `dotnet run --project Gatekeeper`
 1. Run tests using `dotnet test GatekeeperTest`
 

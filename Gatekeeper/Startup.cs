@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Gatekeeper.Areas.Identity.Data;
 using Gatekeeper.Areas.Identity.Services;
 using Gatekeeper.Models;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -20,12 +23,15 @@ namespace Gatekeeper
 {
     public class Startup
     {
+        private IConfiguration Configuration { get; }
+        private IConfigurationSection GatekeeperConfig { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            GatekeeperConfig = Configuration.GetSection("Gatekeeper");
         }
 
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -52,11 +58,14 @@ namespace Gatekeeper
                 .AddEntityFrameworkStores<GatekeeperContext>()
                 .AddDefaultTokenProviders();
 
+            services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(GatekeeperConfig["KeysPath"]));
+
             services.AddIdentityServer(options => {
                     options.UserInteraction.LoginUrl = "/Identity/Account/Login";
                     options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
                 })
-                .AddDeveloperSigningCredential()
+                .AddSigningCredential(new X509Certificate2(Path.Combine(GatekeeperConfig["CertsPath"], "is4cert.pfx"), GatekeeperConfig["TokenCertPassword"]))
                 .AddConfigurationStore(options =>
                 {
                     options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
