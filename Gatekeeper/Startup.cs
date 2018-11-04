@@ -23,7 +23,8 @@ namespace Gatekeeper
 {
     public class Startup
     {
-        IConfigurationSection GatekeeperConfig;
+        private IConfiguration Configuration { get; }
+        private IConfigurationSection GatekeeperConfig { get; }
 
         public Startup(IConfiguration configuration)
         {
@@ -31,7 +32,6 @@ namespace Gatekeeper
             GatekeeperConfig = Configuration.GetSection("Gatekeeper");
         }
 
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
