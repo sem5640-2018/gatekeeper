@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Gatekeeper.Areas.Identity.Data;
 using Gatekeeper.Areas.Identity.Services;
 using Gatekeeper.Models;
+using Gatekeeper.Util;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -59,13 +60,13 @@ namespace Gatekeeper
                 .AddDefaultTokenProviders();
 
             services.AddDataProtection()
-                .PersistKeysToFileSystem(new DirectoryInfo(GatekeeperConfig["KeysPath"]));
+                .AddSigningCredentialFromConfig(GatekeeperConfig);
 
             services.AddIdentityServer(options => {
                     options.UserInteraction.LoginUrl = "/Identity/Account/Login";
                     options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
                 })
-                .AddSigningCredential(new X509Certificate2(Path.Combine(GatekeeperConfig["CertsPath"], "is4cert.pfx"), GatekeeperConfig["TokenCertPassword"]))
+                .AddSigningCredentialFromConfig(GatekeeperConfig)
                 .AddConfigurationStore(options =>
                 {
                     options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
