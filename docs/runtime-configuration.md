@@ -15,7 +15,7 @@ You should read and understand [Configuration in ASP.NET Core][dotnetconfig]
 | Environment Variable | appsettings.Development key | Description |
 |-|-|-|
 | ASPNETCORE_ENVIRONMENT | N/A | Runtime environment, should be 'Development', 'Staging', or 'Production'.  Defaults to 'Production'|
-| ConnectionStrings_GatekeeperContextConnection |  ConnectionStrings.GatekeeperContextConnection | MSSQL connection string.
+| ConnectionStrings_GatekeeperContextConnection |  ConnectionStrings.GatekeeperContextConnection | MSSQL connection string. |
 | Gatekeeper__TokenCertPassword | Gatekeeper.TokenCertPassword | The password used to protect your token signing certificate (is4cert.pfx). |
 | Gatekeeper__DPKCertPassword | Gatekeeper.DPKCertPassword | The password used to protect your .NET data protection key certificate (dpkcert.pfx). |
 | Gatekeeper__CertsPath | Gatekeeper.CertsPath | Path to the directory containing application certificates (is4cert.pfx and dpkcert.pfx). |
