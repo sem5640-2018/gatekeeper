@@ -22,41 +22,26 @@ namespace Gatekeeper.Util
                     AddCertificateFromFile(builder, gatekeeperConfig);
                     break;
 
-                case "Store":
-                    AddCertificateFromStore(builder, gatekeeperConfig);
+                default:
+                    builder.AddDeveloperSigningCredential();
                     break;
             }
 
             return builder;
         }
 
-        private static void AddCertificateFromStore(IIdentityServerBuilder builder, IConfigurationSection gatekeeperConfig)
-        {
-            var certThumbprint = gatekeeperConfig.GetValue<string>("IS4CertThumbprint");
-
-            X509Store store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
-            store.Open(OpenFlags.ReadOnly);
-
-            var certificates = store.Certificates.Find(X509FindType.FindByThumbprint, certThumbprint, true);
-
-            if (certificates.Count > 0)
-                builder.AddSigningCredential(certificates[0]);
-            else
-                Console.WriteLine("A matching thumbprint couldn't be found in the store");
-        }
-
         private static void AddCertificateFromFile(IIdentityServerBuilder builder, IConfigurationSection gatekeeperConfig)
         {
-            var certFilePath = Path.Combine(gatekeeperConfig.GetValue<string>("CertsPath"), "is4cert.pfx");
-            var certFilePassword = gatekeeperConfig.GetValue<string>("TokenCertPassword");
+            var cert = Path.Combine(gatekeeperConfig.GetValue<string>("CertsPath"), "is4cert.pfx");
+            var certPassword = gatekeeperConfig.GetValue<string>("TokenCertPassword");
 
-            if (File.Exists(certFilePath))
+            if (File.Exists(cert))
             {
-                builder.AddSigningCredential(new X509Certificate2(certFilePath, certFilePassword));
+                builder.AddSigningCredential(new X509Certificate2(cert, certPassword));
             }
             else
             {
-                Console.WriteLine($"IdentityServerCredentialExtension cannot find cert file {certFilePath}");
+                Console.WriteLine($"IdentityServerCredentialExtension cannot find cert file {cert}");
             }
         }
     }
