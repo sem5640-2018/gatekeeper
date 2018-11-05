@@ -35,8 +35,22 @@ At this stage, you will be asked to set the export passsword.  This will be requ
 
 You should now have `is4cert.pfx` in your current working directory.
 
-#### 4. Tell Gatekeeper where to find the certificate
+## Using Certificates
 
-If appropriate, move `is4cert.pfx` to another directory.
+There are two ways in which the application can load certificates.  Using the certificate file, or from the local machine certificate store.  Loading from file is much easier, and is the preferred method.
 
-Follow the instructions in [runtime configuration](runtime-configuration.md) to set both the certificate directory, and certificate password.
+### Loading Certificates from File
+
+**Windows Users**: There is a bug in .NET Core 2.1 preventing correct loading of certificates from files.  You must use the [Keystore](#Loading-Certificates-from-Keystore) method.
+
+Move your `is4cert.pfx` and `dpkcert.pfx` files to a directory the application has permission to read.
+
+Follow the instructions in [runtime configuration](runtime-configuration.md) to use the `CertStorageType` of `File`, ensuring that you set the optional keys required for this storage type.
+
+### Loading Certificates from Keystore
+
+**Linux Users**: This method is only implemented for Windows users due to the bug mentioned in the [File](#Loading-Certificates-from-File) method.  Use the File method instead.
+
+Follow the instructions at [this stackoverflow solution](https://stackoverflow.com/a/21148852) to install both `is4cert.pfx` and `dpkcert.pfx` in your local machine keystore.
+
+Follow the instructions in [runtime configuration](runtime-configuration.md) to use the `CertStorageType` of `Store`, ensuring that you set the optional keys required for this storage type.
