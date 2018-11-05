@@ -2,13 +2,15 @@
 
 ## Overview
 
+In Development, certificates are automatically generated and handled for you.  All you need to do is set the `Development` certificate storage type in the [runtime configuration](runtime-configuration.md).
+
+For other environments (staging and production) this is not appropriate, so you must create the certificates and ensure they are persisted correctly.
+
 Gatekeeper uses two `X509Certificate2` certificates:
  * `is4cert.pfx` is used by IdentityServer4 to create and verify the tokens it issues.
  * `dpkcert.pfx` is used to protect the Data Protection Keys which are self-managed by .NET Core.
 
 These self-contained PXF files contain both a certificate and a private key, and must be protected by an export password.
-
-The application loads certificates from the location specified in the [runtime configuration](runtime-configuration.md).
 
 ## Creating a certificate
 
@@ -37,20 +39,6 @@ You should now have `is4cert.pfx` in your current working directory.
 
 ## Using Certificates
 
-There are two ways in which the application can load certificates.  Using the certificate file, or from the local machine certificate store.  Loading from file is much easier, and is the preferred method.
+Certificates must be stored in a location accessible to the application.  For staging/production deployments, the certificate should typically remain the same throughout deployments - this means that they should be persisted in an appropriate place such as docker volumes.
 
-### Loading Certificates from File
-
-**Windows Users**: There is a bug in .NET Core 2.1 preventing correct loading of certificates from files.  You must use the [Keystore](#Loading-Certificates-from-Keystore) method.
-
-Move your `is4cert.pfx` and `dpkcert.pfx` files to a directory the application has permission to read.
-
-Follow the instructions in [runtime configuration](runtime-configuration.md) to use the `CertStorageType` of `File`, ensuring that you set the optional keys required for this storage type.
-
-### Loading Certificates from Keystore
-
-**Linux Users**: This method is only implemented for Windows users due to the bug mentioned in the [File](#Loading-Certificates-from-File) method.  Use the File method instead.
-
-Follow the instructions at [this stackoverflow solution](https://stackoverflow.com/a/21148852) to install both `is4cert.pfx` and `dpkcert.pfx` in your local machine keystore.
-
-Follow the instructions in [runtime configuration](runtime-configuration.md) to use the `CertStorageType` of `Store`, ensuring that you set the optional keys required for this storage type.
+Follow the instructions in [runtime configuration](runtime-configuration.md) to set the `File` certificate storage type, ensuring that you also set the optional keys required for this storage type.

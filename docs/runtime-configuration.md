@@ -17,7 +17,7 @@ You should read and understand [Configuration in ASP.NET Core][dotnetconfig]
 | ASPNETCORE_ENVIRONMENT | N/A | Runtime environment, should be 'Development', 'Staging', or 'Production'.  Defaults to 'Production'|
 | ConnectionStrings_GatekeeperContextConnection |  ConnectionStrings.GatekeeperContextConnection | MSSQL connection string. |
 | Gatekeeper__KeysPath | Gatekeeper.KeysPath | Path to the directory where .NET should persist auto-managed data protection keys. |
-| Gatekeeper__CertStorageType | Gatekeeper.CertStorageType | Defines where the application should load certificates from.  Options are 'File', or 'Store'. See [certificates documentation](certificates.md).
+| Gatekeeper__CertStorageType | Gatekeeper.CertStorageType | Defines where the application should load certificates from.  Options are 'File', or 'Development'. See [certificates documentation](certificates.md).
 
 ## Optional Keys
 | Environment Variable | appsettings.Development key | Description |
@@ -25,5 +25,3 @@ You should read and understand [Configuration in ASP.NET Core][dotnetconfig]
 | Gatekeeper__CertsPath | Gatekeeper.CertsPath | **Must be set if using 'File' CertStorageType.** Path to the directory containing application certificates (is4cert.pfx and dpkcert.pfx). |
 | Gatekeeper__TokenCertPassword | Gatekeeper.TokenCertPassword | **Must be set if using 'File' CertStorageType.** The password used to protect your token signing certificate (is4cert.pfx). |
 | Gatekeeper__DPKCertPassword | Gatekeeper.DPKCertPassword | **Must be set if using 'File' CertStorageType.** The password used to protect your .NET data protection key certificate (dpkcert.pfx). |
-| Gatekeeper__IS4CertThumbprint | Gatekeeper.IS4CertThumbprint | **Must be set if using 'Store' CertStorageType.** Thumbprint of the is4cert.pfx in your certificate store. |
-| Gatekeeper__DPKCertThumbprint | Gatekeeper.DPKCertThumbprint | **Must be set if using 'Store' CertStorageType.** Thumbprint of the dpkcert.pfx in your certificate store. |
