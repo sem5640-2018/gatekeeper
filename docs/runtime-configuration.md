@@ -14,7 +14,7 @@ In **production**, these should actually be set in the environment.  In **develo
 ## Required Keys
 
 | Environment Variable | Description |
-|-|-|-|
+|-|-|
 | ASPNETCORE_ENVIRONMENT | Runtime environment, should be 'Development', 'Staging', or 'Production'.  Defaults to 'Production'|
 | ConnectionStrings__GatekeeperContextConnection | MSSQL connection string. |
 | Gatekeeper__KeysPath | Path to the directory where .NET should persist auto-managed data protection keys. |
@@ -22,7 +22,7 @@ In **production**, these should actually be set in the environment.  In **develo
 
 ## Optional Keys
 | Environment Variable | Description |
-|-|-|-|
+|-|-|
 | Gatekeeper__CertsPath | **Must be set if using 'File' CertStorageType.** Path to the directory containing application certificates (is4cert.pfx and dpkcert.pfx). |
 | Gatekeeper__TokenCertPassword | **Must be set if using 'File' CertStorageType.** The password used to protect your token signing certificate (is4cert.pfx). |
 | Gatekeeper__DPKCertPassword |**Must be set if using 'File' CertStorageType.** The password used to protect your .NET data protection key certificate (dpkcert.pfx). |
