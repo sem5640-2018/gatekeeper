@@ -100,4 +100,4 @@ You can access the current user in a view simply by calling the `User` class.
 
 ![Example of user claims in a view][example_claims]
 
-[example_claims]: ./example_claims.png
+[example_claims]: ./example_claims.PNG
