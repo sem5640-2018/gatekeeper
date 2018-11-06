@@ -2,13 +2,15 @@
 
 ## Overview
 
+In Development, certificates are automatically generated and handled for you.  All you need to do is set the `Development` certificate storage type in the [runtime configuration](runtime-configuration.md).
+
+For other environments (staging and production) this is not appropriate, so you must create the certificates and ensure they are persisted correctly.
+
 Gatekeeper uses two `X509Certificate2` certificates:
  * `is4cert.pfx` is used by IdentityServer4 to create and verify the tokens it issues.
  * `dpkcert.pfx` is used to protect the Data Protection Keys which are self-managed by .NET Core.
 
 These self-contained PXF files contain both a certificate and a private key, and must be protected by an export password.
-
-The application loads certificates from the location specified in the [runtime configuration](runtime-configuration.md).
 
 ## Creating a certificate
 
@@ -35,8 +37,8 @@ At this stage, you will be asked to set the export passsword.  This will be requ
 
 You should now have `is4cert.pfx` in your current working directory.
 
-#### 4. Tell Gatekeeper where to find the certificate
+## Using Certificates
 
-If appropriate, move `is4cert.pfx` to another directory.
+Certificates must be stored in a location accessible to the application.  For staging/production deployments, the certificate should typically remain the same throughout deployments - this means that they should be persisted in an appropriate place such as docker volumes.
 
-Follow the instructions in [runtime configuration](runtime-configuration.md) to set both the certificate directory, and certificate password.
+Follow the instructions in [runtime configuration](runtime-configuration.md) to set the `File` certificate storage type, ensuring that you also set the optional keys required for this storage type.
