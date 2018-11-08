@@ -1,0 +1,26 @@
+﻿@using Microsoft.AspNetCore.Authentication
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>User Claims</h2>
+        <ul>
+            @foreach (var claim in User.Claims)
+            {
+                <li><strong>@claim.Type:</strong> @claim.Value</li>
+            }
+        </ul>
+    </div>
+    <div class="col-md-12">
+        <h2>Access Token</h2>
+        <p>@await ViewContext.HttpContext.GetTokenAsync("access_token")</p>
+    </div>
+    <div class="col-md-12">
+        <h2>Refresh Token</h2>
+        <p>@await ViewContext.HttpContext.GetTokenAsync("refresh_token")</p>
+    </div>
+</div>

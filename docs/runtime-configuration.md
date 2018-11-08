@@ -1,27 +1,28 @@
 # Runtime Configuration
 
-In **development** environments, you can set configuration either by using environment variables, or by using `appsettings.Development.json`.
+The prefered way to set configuration is using environment variables.
 
-In **production** environments, you must set configuration using environment variables.
+In **production**, these should actually be set in the environment.  In **development**, your IDE may be able to help you set them.  For example, in Visual Studio, you can set environment variables like this:
 
-You should read and understand [Configuration in ASP.NET Core][dotnetconfig]
+![Setting environment variables in Visual Studio][vs_envvars]
 
-**Note:** Keys are case-insensitive whilst values are not, as per the documentation.
+**Note:** As per the [.NET Configuration documentation][dotnetconfig], keys are case-insensitive whilst values are not.
 
 [dotnetconfig]: https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-2.1
+[vs_envvars]: ./vs_envvars.png
 
 ## Required Keys
 
-| Environment Variable | appsettings.Development key | Description |
-|-|-|-|
-| ASPNETCORE_ENVIRONMENT | N/A | Runtime environment, should be 'Development', 'Staging', or 'Production'.  Defaults to 'Production'|
-| ConnectionStrings_GatekeeperContextConnection |  ConnectionStrings.GatekeeperContextConnection | MSSQL connection string. |
-| Gatekeeper__KeysPath | Gatekeeper.KeysPath | Path to the directory where .NET should persist auto-managed data protection keys. |
-| Gatekeeper__CertStorageType | Gatekeeper.CertStorageType | Defines where the application should load certificates from.  Options are 'File', or 'Development'. See [certificates documentation](certificates.md).
+| Environment Variable | Description |
+|-|-|
+| ASPNETCORE_ENVIRONMENT | Runtime environment, should be 'Development', 'Staging', or 'Production'.  Defaults to 'Production'|
+| ConnectionStrings__GatekeeperContextConnection | MSSQL connection string. |
+| Gatekeeper__KeysPath | Path to the directory where .NET should persist auto-managed data protection keys. |
+| Gatekeeper__CertStorageType | Defines where the application should load certificates from.  Options are 'File', or 'Development'. See [certificates documentation](certificates.md).
 
 ## Optional Keys
-| Environment Variable | appsettings.Development key | Description |
-|-|-|-|
-| Gatekeeper__CertsPath | Gatekeeper.CertsPath | **Must be set if using 'File' CertStorageType.** Path to the directory containing application certificates (is4cert.pfx and dpkcert.pfx). |
-| Gatekeeper__TokenCertPassword | Gatekeeper.TokenCertPassword | **Must be set if using 'File' CertStorageType.** The password used to protect your token signing certificate (is4cert.pfx). |
-| Gatekeeper__DPKCertPassword | Gatekeeper.DPKCertPassword | **Must be set if using 'File' CertStorageType.** The password used to protect your .NET data protection key certificate (dpkcert.pfx). |
+| Environment Variable | Description |
+|-|-|
+| Gatekeeper__CertsPath | **Must be set if using 'File' CertStorageType.** Path to the directory containing application certificates (is4cert.pfx and dpkcert.pfx). |
+| Gatekeeper__TokenCertPassword | **Must be set if using 'File' CertStorageType.** The password used to protect your token signing certificate (is4cert.pfx). |
+| Gatekeeper__DPKCertPassword |**Must be set if using 'File' CertStorageType.** The password used to protect your .NET data protection key certificate (dpkcert.pfx). |
