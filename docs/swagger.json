@@ -16,7 +16,7 @@
   ],
   "servers": [
     {
-      "url": "https://staging-gatekeeper.aberfitness.dcs.aber.ac.uk",
+      "url": "https://m56-docker2.dcs.aber.ac.uk",
       "description": "Gatekeeper Staging instance"
     }
   ],
