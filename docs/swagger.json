@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "description": "Gatekeeper user metadata API",
-    "version": "1.0.0",
+    "version": "0.1.1",
     "title": "Gatekeeper",
     "contact": {
       "email": "arl4@aber.ac.uk"
