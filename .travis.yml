@@ -33,7 +33,7 @@ jobs:
         - echo $TRAVIS_PULL_REQUEST
         - echo "$ENCRYPTED_DOCKER_PASSWORD" | docker login -u "$ENCRYPTED_DOCKER_USERNAME" --password-stdin
         - cd Gatekeeper
-        - docker build -t sem56402018/gatekeeper:$TRAVIS_COMMIT .
+        - docker build -t sem56402018/gatekeeper:staging -t sem56402018/gatekeeper:$TRAVIS_COMMIT .
         - docker push sem56402018/gatekeeper:$TRAVIS_COMMIT
     - stage: build_release
       name: "Build docker release image"
@@ -41,8 +41,8 @@ jobs:
         - echo $TRAVIS_PULL_REQUEST
         - echo "$ENCRYPTED_DOCKER_PASSWORD" | docker login -u "$ENCRYPTED_DOCKER_USERNAME" --password-stdin
         - cd Gatekeeper
-        - docker build -t sem56402018/gatekeeper:latest .
-        - docker push sem56402018/gatekeeper:latest
+        - docker build -t sem56402018/gatekeeper:latest -t sem56402018/gatekeeper:$TRAVIS_COMMIT .
+        - docker push sem56402018/gatekeeper:$TRAVIS_COMMIT
 
 notifications:
     slack: sem5640-2018:ouuibb583SpjRvEHwhoXE8qe
