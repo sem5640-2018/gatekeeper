@@ -2,14 +2,44 @@ language: csharp
 solution: gatekeeper.sln
 mono: none
 dotnet: 2.1
+sudo: required
+
+env:
+  global:
+  - secure: D64VE8FrB+aeP3nPSKLZ2gtKa1CxjPnB9hnYi2sRShYn87NZmFU37FRr+Ha1bTN0sPI4m551pkWPwnWUNn9CDpzvs/znROhUxx9gORaxGKpxJ2hNgTWUzFyqVseciBTcnb7XUtUfmcFk3eaHbxu25jH1I+TUWgWMPlves9mwA/VVFhmuf95Vo3XkMBx5uNc+LxMdqWp94JjbfztR/lOTIBK+Xo717JJOTvkKLcj+gxXSD1FFy/qmsZovTHNy9FyAR+/IxlmM+xxkg0NKAXWAPyfBggGSYOOyHA6UsQduCeMN+9WgOe/lnc6qk/mOu+L4yx9eccz1j+19RiVuUln5TlgEDn0vWmFbQc/MpeG0PDeJFE7Akt+PnZ41s+8/AggeDb4TXi6B5/HZ3mfwyiQdtzAgJp/6DTFIQA18uJV1LwB2SjmqBjLW7N9m2WicgP+L6AY8S+mgGF3G0obVf3S4WScAf4jznFN/TsA/YVaIlKkBkKZkuQNiJM0tAiO06ewO9aRHoW+L29Ts/NXvN9eweOGns8D8dN9PoaMBRAgGmq0RRvkmrlzmZf0+wGg98dliANVaG3h91UhK7UIltFamgjBSgYnVmk2E5M9e9x9jVQy+TkRsZgaoE0n1sXQiJaULUzE9I15pApcJ3/XItYkUwRJ9Ei2vQh4eteuWK5AHPSI=
+  - secure: MXaQA7f98WQI55JEnurMgonS1BtQeK6SNEY6rEtyAeTXxuyxQe4F6dfepFYg1JpKiLVTSECtULuwNR8vuzVUl1SWeteJoBIrRaxkTEhqdmIezFQmpkNVIZySrLyPdhr0BpUVmMNlAoqxqM3s5RTy14FGnQyK3By94BohvXJYA0GlnARHRyXIMQ+QjYfxPpSBYFJ90C6ESXrotzbObEMzEKJWwCFd35uFaPig6ay4vgGXGt5ecTzH/tEwcHHBkNowdbfpTt721HcycQp3ZDS6gkm645aA+9dsWnw0XfifJzoQgYdsR82W4ed76i2MhbQMExR0/knTouT0EbYZa2bYVYRigZ3QRk3Z/QWYZZAzVxN0IB4YtNccWnYyW4bEcnMMr9aVS7MUJpQLa46gN/ezU/nHspC8eZIvyKc54EJfdIo4MY6C+8Fq7xX3L7LyxLcL8H2lfs9agd02TDx7yFYXw1asd6NSYGFHeD0B98p3Tam48k5l2hJ9CemPDbtxDGfjXI9cfEuTKm/q+RVY8w3LhJwAOdS+SNntgDPf2v4MoAb2ILoNrtxyRrmm/TA4TQPbz3QUPJfQo4K0hB9ppM4vmiw/I+pif9LRdxGS08PQcDCgMv0CD9HrWRQoBxwRJKKavMoXxdSE0fKJKs5xCCt7o3Wicqf15OZsYCAoAC8qn04=
+
+services:
+  - docker
+
+stages:
+  - test
+  - name: build_staging
+    if: branch = development
+  - name: build_release
+    if: branch = master
 
 jobs:
   include:
-    - stage: "Tests"
+    - stage: test
       name: "xUnit Tests"
       script:
         - dotnet restore
         - dotnet test GatekeeperTest/GatekeeperTest.csproj
+    - stage: build_staging
+      name: "Build docker staging image"
+      script:
+        - echo "$ENCRYPTED_DOCKER_PASSWORD" | docker login -u "$ENCRYPTED_DOCKER_USERNAME" --password-stdin
+        - cd Gatekeeper
+        - docker build -t sem56402018/gatekeeper:$TRAVIS_COMMIT .
+        - docker push sem56402018/gatekeeper:$TRAVIS_COMMIT
+    - stage: build_release
+      name: "Build docker release image"
+      script:
+        - echo "$ENCRYPTED_DOCKER_PASSWORD" | docker login -u "$ENCRYPTED_DOCKER_USERNAME" --password-stdin
+        - cd Gatekeeper
+        - docker build -t sem56402018/gatekeeper:latest .
+        - docker push sem56402018/gatekeeper:latest
 
 notifications:
     slack: sem5640-2018:ouuibb583SpjRvEHwhoXE8qe
