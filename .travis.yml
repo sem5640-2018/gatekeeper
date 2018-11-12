@@ -35,6 +35,7 @@ jobs:
         - cd Gatekeeper
         - docker build -t sem56402018/gatekeeper:staging -t sem56402018/gatekeeper:$TRAVIS_COMMIT .
         - docker push sem56402018/gatekeeper:$TRAVIS_COMMIT
+        - docker push sem56402018/gatekeeper:staging
     - stage: build_release
       name: "Build docker release image"
       script:
@@ -43,6 +44,7 @@ jobs:
         - cd Gatekeeper
         - docker build -t sem56402018/gatekeeper:latest -t sem56402018/gatekeeper:$TRAVIS_COMMIT .
         - docker push sem56402018/gatekeeper:$TRAVIS_COMMIT
+        - docker push sem56402018/gatekeeper:latest
 
 notifications:
     slack: sem5640-2018:ouuibb583SpjRvEHwhoXE8qe
