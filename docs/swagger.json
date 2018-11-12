@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "description": "Gatekeeper user metadata API",
-    "version": "1.0.0",
+    "version": "0.1.1",
     "title": "Gatekeeper",
     "contact": {
       "email": "arl4@aber.ac.uk"
@@ -10,17 +10,35 @@
   },
   "tags": [
     {
+      "name": "service",
+      "description": "Service status"
+    },
+    {
       "name": "user",
       "description": "User metadata"
     }
   ],
   "servers": [
     {
-      "url": "https://staging-gatekeeper.aberfitness.dcs.aber.ac.uk",
+      "url": "https://m56-docker2.dcs.aber.ac.uk",
       "description": "Gatekeeper Staging instance"
     }
   ],
   "paths": {
+    "/status": {
+      "get": {
+        "tags": [
+          "service"
+        ],
+        "summary": "Endpoint for monitoring software/load balancers to query service status.",
+        "description": "This endpoint can be queried to determine if the service is ready to accept requests.  A 200 response indicates that the service is ready.  Any other response indicates that it is not ready.",
+        "responses": {
+          "200": {
+            "description": "The service is healthy"
+          }
+        }
+      }
+    },
     "/user/{UUID}": {
       "get": {
         "tags": [
