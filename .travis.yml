@@ -27,22 +27,14 @@ jobs:
       services:
         - docker
       script:
-        - echo "$ENCRYPTED_DOCKER_PASSWORD" | docker login -u "$ENCRYPTED_DOCKER_USERNAME" --password-stdin
-        - cd Gatekeeper
-        - docker build -t sem56402018/gatekeeper:staging -t sem56402018/gatekeeper:$TRAVIS_COMMIT .
-        - docker push sem56402018/gatekeeper:$TRAVIS_COMMIT
-        - docker push sem56402018/gatekeeper:staging
+        - ./bin/docker.sh staging
     - stage: build_release
       name: "Build docker release image"
       sudo: required
       services:
         - docker
       script:
-        - echo "$ENCRYPTED_DOCKER_PASSWORD" | docker login -u "$ENCRYPTED_DOCKER_USERNAME" --password-stdin
-        - cd Gatekeeper
-        - docker build -t sem56402018/gatekeeper:latest -t sem56402018/gatekeeper:$TRAVIS_COMMIT .
-        - docker push sem56402018/gatekeeper:$TRAVIS_COMMIT
-        - docker push sem56402018/gatekeeper:latest
+        - ./bin/docker.sh latest
 
 notifications:
     slack: sem5640-2018:ouuibb583SpjRvEHwhoXE8qe
