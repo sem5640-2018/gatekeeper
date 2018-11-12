@@ -15,9 +15,9 @@ services:
 stages:
   - test
   - name: build_staging
-    if: branch = development AND NOT env(TRAVIS_PULL_REQUEST)
+    if: branch = development AND env(TRAVIS_PULL_REQUEST) IS false
   - name: build_release
-    if: branch = master AND NOT env(TRAVIS_PULL_REQUEST)
+    if: branch = master AND env(TRAVIS_PULL_REQUEST) IS false
 
 jobs:
   include:
