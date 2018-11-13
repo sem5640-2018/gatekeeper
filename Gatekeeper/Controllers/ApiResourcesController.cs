@@ -3,28 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Gatekeeper.Repositories;
 
 namespace Gatekeeper.Controllers
 {
     public class ApiResourcesController : Controller
     {
-        private readonly ConfigurationDbContext _context;
+        private readonly IApiResourceRepository _repository;
 
-        public ApiResourcesController(ConfigurationDbContext context)
+        public ApiResourcesController(IApiResourceRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         // GET: ApiResources
         [Authorize("Administrator")]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ApiResources.ToListAsync());
+            return View(await _repository.GetAllAsync());
         }
 
         // GET: ApiResources/Create
@@ -44,8 +42,7 @@ namespace Gatekeeper.Controllers
             {
                 apiResource.Enabled = true;
                 apiResource.Scopes = new List<ApiScope> { new ApiScope() { Name = apiResource.Name, DisplayName = apiResource.DisplayName } };
-                _context.Add(apiResource);
-                await _context.SaveChangesAsync();
+                await _repository.AddAsync(apiResource);
                 return RedirectToAction(nameof(Index));
             }
             return View(apiResource);
@@ -60,8 +57,7 @@ namespace Gatekeeper.Controllers
                 return NotFound();
             }
 
-            var apiResource = await _context.ApiResources
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var apiResource = await _repository.GetByIdAsync(id.Value);
             if (apiResource == null)
             {
                 return NotFound();
@@ -76,15 +72,8 @@ namespace Gatekeeper.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var apiResource = await _context.ApiResources.FindAsync(id);
-            _context.ApiResources.Remove(apiResource);
-            await _context.SaveChangesAsync();
+            await _repository.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool ApiResourceExists(int id)
-        {
-            return _context.ApiResources.Any(e => e.Id == id);
         }
     }
 }

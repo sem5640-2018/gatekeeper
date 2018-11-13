@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Gatekeeper.Areas.Identity.Data;
 using Gatekeeper.Areas.Identity.Services;
 using Gatekeeper.Models;
+using Gatekeeper.Repositories;
 using Gatekeeper.Util;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -88,6 +89,8 @@ namespace Gatekeeper
             {
                 options.AccessDeniedPath = new PathString("/Identity/Account/AccessDenied");
             });
+
+            services.AddScoped<IApiResourceRepository, ApiResourceRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
