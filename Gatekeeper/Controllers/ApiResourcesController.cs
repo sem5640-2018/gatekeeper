@@ -25,24 +25,6 @@ namespace Gatekeeper.Controllers
             return View(await _context.ApiResources.ToListAsync());
         }
 
-        // GET: ApiResources/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var apiResource = await _context.ApiResources
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (apiResource == null)
-            {
-                return NotFound();
-            }
-
-            return View(apiResource);
-        }
-
         // GET: ApiResources/Create
         public IActionResult Create()
         {
@@ -54,63 +36,14 @@ namespace Gatekeeper.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Enabled,Name,DisplayName,Description")] ApiResource apiResource)
+        public async Task<IActionResult> Create([Bind("Name,DisplayName,Description")] ApiResource apiResource)
         {
             if (ModelState.IsValid)
             {
+                apiResource.Enabled = true;
+                apiResource.Scopes = new List<ApiScope> { new ApiScope() { Name = apiResource.Name, DisplayName = apiResource.DisplayName } };
                 _context.Add(apiResource);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(apiResource);
-        }
-
-        // GET: ApiResources/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var apiResource = await _context.ApiResources.FindAsync(id);
-            if (apiResource == null)
-            {
-                return NotFound();
-            }
-            return View(apiResource);
-        }
-
-        // POST: ApiResources/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Enabled,Name,DisplayName,Description")] ApiResource apiResource)
-        {
-            if (id != apiResource.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(apiResource);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ApiResourceExists(apiResource.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
                 return RedirectToAction(nameof(Index));
             }
             return View(apiResource);
