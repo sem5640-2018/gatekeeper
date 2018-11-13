@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Gatekeeper.Controllers
 {
@@ -20,20 +21,21 @@ namespace Gatekeeper.Controllers
         }
 
         // GET: ApiResources
+        [Authorize("Administrator")]
         public async Task<IActionResult> Index()
         {
             return View(await _context.ApiResources.ToListAsync());
         }
 
         // GET: ApiResources/Create
+        [Authorize("Administrator")]
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: ApiResources/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize("Administrator")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,DisplayName,Description")] ApiResource apiResource)
@@ -50,6 +52,7 @@ namespace Gatekeeper.Controllers
         }
 
         // GET: ApiResources/Delete/5
+        [Authorize("Administrator")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -68,6 +71,7 @@ namespace Gatekeeper.Controllers
         }
 
         // POST: ApiResources/Delete/5
+        [Authorize("Administrator")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
