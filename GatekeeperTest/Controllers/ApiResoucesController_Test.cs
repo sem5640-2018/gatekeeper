@@ -1,5 +1,6 @@
 ﻿using Gatekeeper.Controllers;
 using Gatekeeper.Repositories;
+using GatekeeperTest.TestUtils;
 using IdentityServer4.EntityFramework.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -35,7 +36,7 @@ namespace GatekeeperTest.Controllers
         [Fact]
         public async void Index_ContainsCorrectModel()
         {
-            var expectedResources = CreateTestApiResourcesList();
+            var expectedResources = ApiResourceGenerator.CreateList();
             Repository.Setup(r => r.GetAllAsync()).ReturnsAsync(expectedResources);
 
             var viewResult = await Controller.Index() as ViewResult;
@@ -57,7 +58,7 @@ namespace GatekeeperTest.Controllers
         [Fact]
         public async void Create_AddsNewApiResource()
         {
-            var resource = CreateTestApiResource();
+            var resource = ApiResourceGenerator.Create();
             Repository.Setup(r => r.AddAsync(resource)).Returns(Task.CompletedTask).Verifiable();
 
             var result = await Controller.Create(resource);
@@ -72,7 +73,7 @@ namespace GatekeeperTest.Controllers
         [Fact]
         public async void Delete_ShowsCorrectView()
         {
-            Repository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(CreateTestApiResource());
+            Repository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(ApiResourceGenerator.Create());
             var result = await Controller.Delete(1);
             Assert.IsType<ViewResult>(result);
             var viewResult = result as ViewResult;
@@ -82,7 +83,7 @@ namespace GatekeeperTest.Controllers
         [Fact]
         public async void Delete_ContainsCorrectModel()
         {
-            var expectedResource = CreateTestApiResource();
+            var expectedResource = ApiResourceGenerator.Create();
             Repository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(expectedResource);
 
             var viewResult = await Controller.Delete(1) as ViewResult;
@@ -95,7 +96,7 @@ namespace GatekeeperTest.Controllers
         [Fact]
         public async void DeleteConfirmed_DeletesApiResource()
         {
-            var resource = CreateTestApiResource();
+            var resource = ApiResourceGenerator.Create();
             Repository.Setup(r => r.DeleteAsync(resource.Id)).Returns(Task.CompletedTask).Verifiable();
 
             var result = await Controller.DeleteConfirmed(resource.Id);
@@ -105,27 +106,6 @@ namespace GatekeeperTest.Controllers
             Assert.Equal("Index", redirectedResult.ActionName);
 
             Repository.Verify();
-        }
-
-        private List<ApiResource> CreateTestApiResourcesList(int length = 5)
-        {
-            List<ApiResource> resources = new List<ApiResource>();
-            for (var i = 0; i < length; i++)
-            {
-                resources.Add(CreateTestApiResource(i));
-            }
-            return resources;
-        }
-
-        private ApiResource CreateTestApiResource(int id = 0)
-        {
-            return new ApiResource()
-            {
-                Id = id,
-                Name = $"test_resource_{id}",
-                DisplayName = "Test Resource {id}",
-                Description = "It's a test resource {id}"
-            };
         }
     }
 }
