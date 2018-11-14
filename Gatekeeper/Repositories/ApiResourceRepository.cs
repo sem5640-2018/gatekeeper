@@ -10,7 +10,6 @@ namespace Gatekeeper.Repositories
 {
     public class ApiResourceRepository : IApiResourceRepository
     {
-
         private readonly ConfigurationDbContext _context;
 
         public ApiResourceRepository(ConfigurationDbContext context)
