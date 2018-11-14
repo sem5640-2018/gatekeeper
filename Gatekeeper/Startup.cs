@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using Gatekeeper.Areas.Identity.Data;
 using Gatekeeper.Areas.Identity.Services;
 using Gatekeeper.Models;
+using Gatekeeper.Repositories;
 using Gatekeeper.Util;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -77,6 +79,18 @@ namespace Gatekeeper
                     options.EnableTokenCleanup = true;
                 })
                 .AddAspNetIdentity<GatekeeperUser>();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Administrator", pb => pb.RequireClaim("user_type", "administrator"));
+            });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.AccessDeniedPath = new PathString("/Identity/Account/AccessDenied");
+            });
+
+            services.AddScoped<IApiResourceRepository, ApiResourceRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
