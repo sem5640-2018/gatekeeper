@@ -1,4 +1,5 @@
 ﻿using Gatekeeper.Repositories;
+using GatekeeperTest.TestUtils;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Options;
@@ -12,13 +13,14 @@ namespace GatekeeperTest.Repositories
 {
     public class ApiResourceRepository_Test
     {
+        private static readonly Random random = new Random();
         private DbContextOptions<ConfigurationDbContext> ContextOptions;
         private ConfigurationStoreOptions StoreOptions;
 
         public ApiResourceRepository_Test()
         {
             ContextOptions = new DbContextOptionsBuilder<ConfigurationDbContext>()
-                .UseInMemoryDatabase("database_name")
+                .UseInMemoryDatabase($"rand_db_name_{random.Next()}")
                 .Options;
 
             StoreOptions = new ConfigurationStoreOptions();
@@ -27,7 +29,7 @@ namespace GatekeeperTest.Repositories
         [Fact]
         public async void AddAsync_AddsToContext()
         {
-            var resource = new ApiResource() { Name = "test_resource" };
+            var resource = ApiResourceGenerator.Create();
             using (var context = new ConfigurationDbContext(ContextOptions, StoreOptions))
             {
                 context.Database.EnsureCreated();
@@ -41,7 +43,7 @@ namespace GatekeeperTest.Repositories
         [Fact]
         public async void DeleteAsync_RemovesFromContext()
         {
-            var resource = new ApiResource() { Name = "test_resource" };
+            var resource = ApiResourceGenerator.Create();
             using (var context = new ConfigurationDbContext(ContextOptions, StoreOptions))
             {
                 context.Database.EnsureCreated();
@@ -51,6 +53,41 @@ namespace GatekeeperTest.Repositories
                 var repository = new ApiResourceRepository(context);
                 await repository.DeleteAsync(resource.Id);
                 Assert.Equal(0, await context.ApiResources.CountAsync());
+            }
+        }
+
+        [Fact]
+        public async void GetAllSync_ReturnsAllFromContext()
+        {
+            var expectedResources = ApiResourceGenerator.CreateList();
+            using (var context = new ConfigurationDbContext(ContextOptions, StoreOptions))
+            {
+                context.Database.EnsureCreated();
+                context.ApiResources.AddRange(expectedResources);
+                context.SaveChanges();
+                Assert.Equal(expectedResources.Count, await context.ApiResources.CountAsync());
+                var repository = new ApiResourceRepository(context);
+                var resources = await repository.GetAllAsync();
+                Assert.IsType<List<ApiResource>>(resources);
+                Assert.Equal(expectedResources, resources);
+            }
+        }
+
+        [Fact]
+        public async void GetByIdAsync_ReturnsCorrectItems()
+        {
+            var resources = ApiResourceGenerator.CreateList(5);
+            var expectedResource = resources[2];
+            using (var context = new ConfigurationDbContext(ContextOptions, StoreOptions))
+            {
+                context.Database.EnsureCreated();
+                context.ApiResources.AddRange(resources);
+                context.SaveChanges();
+                Assert.Equal(resources.Count, await context.ApiResources.CountAsync());
+                var repository = new ApiResourceRepository(context);
+                var resource = await repository.GetByIdAsync(expectedResource.Id);
+                Assert.IsType<ApiResource>(resource);
+                Assert.Equal(expectedResource, resource);
             }
         }
     }
