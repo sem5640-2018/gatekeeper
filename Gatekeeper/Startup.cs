@@ -96,7 +96,8 @@ namespace Gatekeeper
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            
+            GatekeeperIdentityResources.PreloadResources(app);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
