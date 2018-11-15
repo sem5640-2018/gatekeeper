@@ -11,22 +11,19 @@ namespace Gatekeeper.Util
 {
     public class GatekeeperIdentityResources
     {
-        public static void PreloadResources(IApplicationBuilder app)
+        public static void PreloadResources(ConfigurationDbContext context)
         {
-            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            if (!context.IdentityResources.Any())
             {
-                var context = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
-                if (!context.IdentityResources.Any())
+                foreach (var resource in GetIdentityResources())
                 {
-                    foreach (var resource in GetIdentityResources())
-                    {
-                        context.IdentityResources.Add(resource);
-                    }
-                    context.SaveChanges();
+                    context.IdentityResources.Add(resource);
                 }
+                context.SaveChanges();
             }
         }
-        private static IEnumerable<IdentityResource> GetIdentityResources()
+
+        public static IEnumerable<IdentityResource> GetIdentityResources()
         {
             return new List<IdentityResource>
             {

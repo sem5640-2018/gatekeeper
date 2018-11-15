@@ -9,6 +9,7 @@ using Gatekeeper.Areas.Identity.Services;
 using Gatekeeper.Models;
 using Gatekeeper.Repositories;
 using Gatekeeper.Util;
+using IdentityServer4.EntityFramework.DbContexts;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -94,9 +95,9 @@ namespace Gatekeeper
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ConfigurationDbContext configurationDbContext)
         {
-            GatekeeperIdentityResources.PreloadResources(app);
+            GatekeeperIdentityResources.PreloadResources(configurationDbContext);
 
             if (env.IsDevelopment())
             {
