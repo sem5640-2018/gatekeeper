@@ -81,6 +81,12 @@ namespace Gatekeeper
                 })
                 .AddAspNetIdentity<GatekeeperUser>();
 
+            services.AddAuthentication().AddIdentityServerAuthentication("token", options =>
+            {
+                options.Authority = GatekeeperConfig.GetValue<string>("BaseUrl");
+                options.ApiName = "gatekeeper";
+            });
+
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("Administrator", pb => pb.RequireClaim("user_type", "administrator"));
