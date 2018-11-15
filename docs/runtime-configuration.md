@@ -18,7 +18,8 @@ In **production**, these should actually be set in the environment.  In **develo
 | ASPNETCORE_ENVIRONMENT | Runtime environment, should be 'Development', 'Staging', or 'Production'.  Defaults to 'Production'|
 | ConnectionStrings__GatekeeperContextConnection | MSSQL connection string. |
 | Gatekeeper__KeysPath | Path to the directory where .NET should persist auto-managed data protection keys. |
-| Gatekeeper__CertStorageType | Defines where the application should load certificates from.  Options are 'File', or 'Development'. See [certificates documentation](certificates.md).
+| Gatekeeper__CertStorageType | Defines where the application should load certificates from.  Options are 'File', or 'Development'. See [certificates documentation](certificates.md). |
+| Gatekeeper__BaseUrl | The full HTTPS url of this gatekeeper instance.  Required as the application has APIs protected by the very OAuth authority it provides. |
 
 ## Optional Keys
 | Environment Variable | Description |
