@@ -10,11 +10,11 @@
   },
   "tags": [
     {
-      "name": "service",
+      "name": "Service",
       "description": "Service status"
     },
     {
-      "name": "user",
+      "name": "Users",
       "description": "User metadata"
     }
   ],
@@ -25,10 +25,10 @@
     }
   ],
   "paths": {
-    "/status": {
+    "/Status": {
       "get": {
         "tags": [
-          "service"
+          "Service"
         ],
         "summary": "Endpoint for monitoring software/load balancers to query service status.",
         "description": "This endpoint can be queried to determine if the service is ready to accept requests.  A 200 response indicates that the service is ready.  Any other response indicates that it is not ready.",
@@ -39,10 +39,10 @@
         }
       }
     },
-    "/user/{UUID}": {
+    "/Users/{UUID}": {
       "get": {
         "tags": [
-          "user"
+          "Users"
         ],
         "summary": "Get user metadata for a given user UUID",
         "description": "Returns a single user",
