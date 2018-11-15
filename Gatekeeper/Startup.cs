@@ -83,7 +83,7 @@ namespace Gatekeeper
 
             services.AddAuthentication().AddIdentityServerAuthentication("token", options =>
             {
-                options.Authority =GatekeeperConfig.GetValue<string>("BaseUrl");
+                options.Authority = GatekeeperConfig.GetValue<string>("BaseUrl");
                 options.ApiName = "gatekeeper";
             });
 
