@@ -11,7 +11,7 @@ namespace Gatekeeper.Controllers
     [ApiController]
     public class StatusController : ControllerBase
     {
-        // GET: Status
+        // GET: /Status
         [HttpGet]
         public IActionResult Get()
         {
