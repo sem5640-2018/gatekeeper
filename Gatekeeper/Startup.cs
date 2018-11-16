@@ -48,7 +48,11 @@ namespace Gatekeeper
             });
 
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc()
+                .AddRazorPagesOptions(options => {
+                    options.Conventions.AddAreaPageRoute("Identity", "/Account/Manage/Index", "");
+                })
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             var dbConnectionString = Configuration.GetConnectionString("GatekeeperContextConnection");
             var migrationsAssembly = "Gatekeeper";
@@ -122,12 +126,7 @@ namespace Gatekeeper
 
             app.UseIdentityServer();
 
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-            });
+            app.UseMvc();
         }
     }
 }
