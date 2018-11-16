@@ -31,6 +31,9 @@ namespace Gatekeeper.Pages.UserManagement
             new SelectListItem { Value = "administrator", Text = "Administrator" },
         };
 
+        [TempData]
+        public string StatusMessage { get; set; }
+
         [BindProperty]
         public InputModel Input { get; set; }
 
@@ -86,6 +89,8 @@ namespace Gatekeeper.Pages.UserManagement
 
             await userRepository.UpdateAsync(user);
             await userRepository.AddOrReplaceClaimAsync(user, new Claim("user_type", Input.UserType));
+
+            StatusMessage = "User has been updated";
 
             return RedirectToPage();
         }
