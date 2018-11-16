@@ -1,6 +1,7 @@
 ﻿using Gatekeeper.Areas.Identity.Data;
 using Gatekeeper.Controllers;
 using Gatekeeper.Repositories;
+using GatekeeperTest.TestUtils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -42,7 +43,7 @@ namespace GatekeeperTest.Controllers
         [Fact]
         public async void Get_ReturnsOkWithValidUuid()
         {
-            var expectedUser = CreateTestUser("someuuid");
+            var expectedUser = GatekeeperUserGenerator.Create("someuuid");
             Repository.Setup(r => r.GetByIdAsync("someuuid")).ReturnsAsync(expectedUser);
 
             var result = await Controller.Get("someuuid");
@@ -58,17 +59,6 @@ namespace GatekeeperTest.Controllers
             };
 
             Assert.Equal(expectedUserDict, dict);
-        }
-
-        private GatekeeperUser CreateTestUser(string uuid)
-        {
-            return new GatekeeperUser()
-            {
-                Id = uuid,
-                UserName = "A username",
-                Email = "user@example.com",
-                PasswordHash = "a fake hash"
-            };
         }
     }
 }
