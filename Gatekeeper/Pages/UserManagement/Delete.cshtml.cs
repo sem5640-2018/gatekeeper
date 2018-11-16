@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Gatekeeper.Pages.UsersManagement
+namespace Gatekeeper.Pages.UserManagement
 {
     [Authorize("Administrator")]
     public class DeleteModel : PageModel

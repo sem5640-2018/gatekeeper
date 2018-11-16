@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
-namespace Gatekeeper.Pages.UsersManagement
+namespace Gatekeeper.Pages.UserManagement
 {
     [Authorize("Administrator")]
     public class IndexModel : PageModel

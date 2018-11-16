@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Gatekeeper.Pages.UsersManagement
+namespace Gatekeeper.Pages.UserManagement
 {
     [Authorize("Administrator")]
     public class EditModel : PageModel
