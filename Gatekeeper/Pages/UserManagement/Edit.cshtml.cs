@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Gatekeeper.Areas.Identity.Data;
+using Gatekeeper.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,11 +17,11 @@ namespace Gatekeeper.Pages.UserManagement
     [Authorize("Administrator")]
     public class EditModel : PageModel
     {
-        private readonly UserManager<GatekeeperUser> _userManager;
+        private readonly IUserRepository userRepository;
 
-        public EditModel(UserManager<GatekeeperUser> userManager)
+        public EditModel(IUserRepository userRepository)
         {
-            _userManager = userManager;
+            this.userRepository = userRepository;
         }
 
         public List<SelectListItem> MemberTypes { get; } = new List<SelectListItem>
@@ -46,19 +47,18 @@ namespace Gatekeeper.Pages.UserManagement
 
         public async Task<IActionResult> OnGetAsync(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await userRepository.GetByIdAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
 
-            var email = await _userManager.GetEmailAsync(user);
-            var claims = await _userManager.GetClaimsAsync(user);
+            var claims = await userRepository.GetClaimAsync(user, "user_type");
             var userType = claims.Count(c => c.Type == "user_type") == 1 ? claims.Single(c => c.Type == "user_type") : new Claim("user_type", "member");
 
             Input = new InputModel
             {
-                Email = email,
+                Email = user.Email,
                 UserType = userType.Value
             };
 
@@ -72,19 +72,20 @@ namespace Gatekeeper.Pages.UserManagement
                 return Page();
             }
 
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await userRepository.GetByIdAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
 
-            var claims = await _userManager.GetClaimsAsync(user);
+            var claims = await userRepository.GetClaimAsync(user, "user_type");
             var userType = claims.Count(c => c.Type == "user_type") == 1 ? claims.Single(c => c.Type == "user_type") : new Claim("user_type", "member");
 
-            await _userManager.SetUserNameAsync(user, Input.Email);
-            await _userManager.SetEmailAsync(user, Input.Email);
-            await _userManager.RemoveClaimAsync(user, userType);
-            await _userManager.AddClaimAsync(user, new Claim("user_type", Input.UserType));
+            user.Email = Input.Email;
+            user.UserName = Input.Email;
+
+            await userRepository.UpdateAsync(user);
+            await userRepository.AddOrReplaceClaimAsync(user, new Claim("user_type", Input.UserType));
 
             return RedirectToPage();
         }
