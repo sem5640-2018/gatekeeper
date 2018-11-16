@@ -22,7 +22,7 @@ namespace Gatekeeper.Controllers
 
         // GET: UsersManagement
         [Authorize("Administrator")]
-        public async Task<ActionResult> Index()
+        public async Task<IActionResult> Index()
         {
             return View(await UserManager.Users.ToListAsync());
         }
