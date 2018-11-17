@@ -55,7 +55,6 @@ namespace Gatekeeper.Areas.Identity.Pages.Account.Manage
             if (user == null)
             {
                 return RedirectToPage("../Login");
-                //return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
             var userName = await _userManager.GetUserNameAsync(user);
