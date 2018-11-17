@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Gatekeeper.Areas.Identity.Data;
+using Gatekeeper.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -14,11 +15,11 @@ namespace Gatekeeper.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private UserManager<GatekeeperUser> UserManager;
+        private IUserRepository Repository;
 
-        public UsersController(UserManager<GatekeeperUser> userManager)
+        public UsersController(IUserRepository repository)
         {
-            UserManager = userManager;
+            Repository= repository;
         }
 
         // GET: /Users/5
@@ -31,7 +32,7 @@ namespace Gatekeeper.Controllers
                 return NotFound();
             }
 
-            var user = await UserManager.FindByIdAsync(uuid);
+            var user = await Repository.GetByIdAsync(uuid);
             if(user == null)
             {
                 return NotFound();
@@ -39,7 +40,7 @@ namespace Gatekeeper.Controllers
 
             // We only want a subset of the user fields.
             return Ok(new Dictionary<string, string>() {
-                { "id", uuid },
+                { "id", user.Id },
                 { "email", user.Email },
                 { "name", user.UserName },
             });

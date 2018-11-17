@@ -48,7 +48,11 @@ namespace Gatekeeper
             });
 
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc()
+                .AddRazorPagesOptions(options => {
+                    options.Conventions.AddAreaPageRoute("Identity", "/Account/Manage/Index", "");
+                })
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             var dbConnectionString = Configuration.GetConnectionString("GatekeeperContextConnection");
             var migrationsAssembly = "Gatekeeper";
@@ -98,6 +102,7 @@ namespace Gatekeeper
             });
 
             services.AddScoped<IApiResourceRepository, ApiResourceRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
