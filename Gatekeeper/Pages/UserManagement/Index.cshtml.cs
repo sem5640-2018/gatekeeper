@@ -23,7 +23,7 @@ namespace Gatekeeper.Pages.UserManagement
 
         public IList<GatekeeperUser> Users { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(string id)
+        public async Task<IActionResult> OnGetAsync()
         {
             Users = await userRepository.GetAllAsync();
 
