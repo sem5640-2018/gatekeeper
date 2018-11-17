@@ -1,0 +1,52 @@
+﻿@page
+@model CreateModel
+@{
+    ViewData["Title"] = "Create - Client Management";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<div class="row">
+    <div class="col-md-6">
+        <form id="edit-form" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Input.ClientId"></label>
+                <input asp-for="Input.ClientId" class="form-control" />
+                <span asp-validation-for="Input.ClientId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.ClientName"></label>
+                <input asp-for="Input.ClientName" class="form-control" />
+                <span asp-validation-for="Input.ClientName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.GrantTypes"></label>
+                <select multiple asp-for="Input.GrantTypes" asp-items="Model.AvailableGrantTypes" class="form-control"></select>
+                <span asp-validation-for="Input.GrantTypes" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.RedirectUri"></label>
+                <input asp-for="Input.RedirectUri" class="form-control" />
+                <span asp-validation-for="Input.RedirectUri" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.Scopes"></label>
+                <input asp-for="Input.Scopes" class="form-control" />
+                <span asp-validation-for="Input.Scopes" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.ClientSecret"></label>
+                <input asp-for="Input.ClientSecret" class="form-control" />
+                <span asp-validation-for="Input.ClientSecret" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-success">Save</button>
+            <a asp-page="Index" class="btn btn-default">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
