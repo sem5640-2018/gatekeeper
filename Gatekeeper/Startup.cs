@@ -58,7 +58,7 @@ namespace Gatekeeper
             var migrationsAssembly = "Gatekeeper";
 
             services.AddDbContext<GatekeeperContext>(options =>
-                options.UseSqlServer(dbConnectionString));
+                options.UseMySql(dbConnectionString));
 
             services.AddTransient<IEmailSender, EmailSender>();
 
@@ -76,11 +76,11 @@ namespace Gatekeeper
                 .AddSigningCredentialFromConfig(GatekeeperConfig)
                 .AddConfigurationStore(options =>
                 {
-                    options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+                    options.ConfigureDbContext = dbBuilder => dbBuilder.UseMySql(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
                 })
                 .AddOperationalStore(options =>
                 {
-                    options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+                    options.ConfigureDbContext = dbBuilder => dbBuilder.UseMySql(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
                     options.EnableTokenCleanup = true;
                 })
                 .AddAspNetIdentity<GatekeeperUser>();
