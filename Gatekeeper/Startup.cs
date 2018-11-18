@@ -126,6 +126,7 @@ namespace Gatekeeper
             }
             else
             {
+                app.UsePathBase("/gatekeeper");
                 app.UseForwardedHeaders(new ForwardedHeadersOptions
                 {
                     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
