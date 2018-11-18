@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Gatekeeper.Migrations.PersistedGrantDb
 {
-    public partial class CreateIdentityGrantsSchema : Migration
+    public partial class CreatePersistedGrantsSchema : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
