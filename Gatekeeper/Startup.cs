@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Gatekeeper.Areas.Identity.Data;
@@ -10,6 +11,7 @@ using Gatekeeper.Models;
 using Gatekeeper.Repositories;
 using Gatekeeper.Util;
 using IdentityServer4.EntityFramework.DbContexts;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -101,6 +103,11 @@ namespace Gatekeeper
                 options.AccessDeniedPath = new PathString("/Identity/Account/AccessDenied");
             });
 
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.KnownProxies.Add(Dns.GetHostEntry("http://nginx").AddressList[0]);
+            });
+
             services.AddScoped<IApiResourceRepository, ApiResourceRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IClientRepository, ClientRepository>();
@@ -119,6 +126,11 @@ namespace Gatekeeper
             }
             else
             {
+                app.UsePathBase("/gatekeeper");
+                app.UseForwardedHeaders(new ForwardedHeadersOptions
+                {
+                    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+                });
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
