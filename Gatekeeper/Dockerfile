@@ -12,5 +12,5 @@ RUN dotnet publish -c Release -o out
 FROM microsoft/dotnet:2.1-aspnetcore-runtime
 WORKDIR /app
 COPY --from=build-env /app/out .
-COPY ../bin/start.sh .
+COPY scripts/start.sh .
 ENTRYPOINT ["/start.sh"]
