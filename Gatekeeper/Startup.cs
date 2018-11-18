@@ -109,6 +109,7 @@ namespace Gatekeeper
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ConfigurationDbContext configurationDbContext)
         {
+            UpdateDatabase(app);
             GatekeeperIdentityResources.PreloadResources(configurationDbContext);
 
             if (env.IsDevelopment())
@@ -134,6 +135,27 @@ namespace Gatekeeper
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private static void UpdateDatabase(IApplicationBuilder app)
+        {
+            using (var serviceScope = app.ApplicationServices
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetService<GatekeeperContext>())
+                {
+                    context.Database.Migrate();
+                }
+                using (var context = serviceScope.ServiceProvider.GetService<ConfigurationDbContext>())
+                {
+                    context.Database.Migrate();
+                }
+                using (var context = serviceScope.ServiceProvider.GetService<PersistedGrantDbContext>())
+                {
+                    context.Database.Migrate();
+                }
+            }
         }
     }
 }
