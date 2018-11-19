@@ -5,24 +5,19 @@ using Microsoft.AspNetCore.DataProtection;
 using System;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Gatekeeper.Util
 {
     public static class DataProtectionCredentialExtension
     {
-        public static IDataProtectionBuilder AddSigningCredentialFromConfig(
-            this IDataProtectionBuilder builder, IConfigurationSection gatekeeperConfig)
+        public static IDataProtectionBuilder AddCredentialsForEnvironment(
+            this IDataProtectionBuilder builder, IHostingEnvironment environment, IConfigurationSection gatekeeperConfig)
         {
-            string certStorageType = gatekeeperConfig.GetValue<string>("CertStorageType");
 
-            switch (certStorageType)
+            if(!environment.IsDevelopment())
             {
-                case "File":
-                    AddCertificateFromFile(builder, gatekeeperConfig);
-                    break;
-                default:
-                    // Do nothing, .NET will manage developer keys for us.
-                    break;
+                AddCertificateFromFile(builder, gatekeeperConfig);
             }
 
             return builder;

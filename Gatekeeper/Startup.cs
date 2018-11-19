@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 using Gatekeeper.Areas.Identity.Data;
 using Gatekeeper.Areas.Identity.Services;
 using Gatekeeper.Models;
@@ -12,12 +8,9 @@ using Gatekeeper.Repositories;
 using Gatekeeper.Util;
 using IdentityServer4.EntityFramework.DbContexts;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -29,26 +22,33 @@ namespace Gatekeeper
 {
     public class Startup
     {
-        private IConfiguration Configuration { get; }
-        private IConfigurationSection GatekeeperConfig { get; }
+        private readonly IConfiguration config;
+        private readonly IConfigurationSection gatekeeperConfig;
+        private readonly IHostingEnvironment environment;
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration config, IHostingEnvironment environment)
         {
-            Configuration = configuration;
-            GatekeeperConfig = Configuration.GetSection("Gatekeeper");
+            this.environment = environment;
+            this.config = config;
+            gatekeeperConfig = this.config.GetSection("Gatekeeper");
         }
-
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var dbConnectionString = config.GetConnectionString("GatekeeperContext");
+            var migrationsAssembly = "Gatekeeper";
+
+            services.AddScoped<IApiResourceRepository, ApiResourceRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IClientRepository, ClientRepository>();
+            services.AddTransient<IEmailSender, EmailSender>();
+
             services.Configure<CookiePolicyOptions>(options =>
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
+                options.CheckConsentNeeded = context => false; // We only use essential cookies
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
 
             services.AddMvc()
                 .AddRazorPagesOptions(options => {
@@ -56,41 +56,34 @@ namespace Gatekeeper
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            var dbConnectionString = Configuration.GetConnectionString("GatekeeperContextConnection");
-            var migrationsAssembly = "Gatekeeper";
-
-            services.AddDbContext<GatekeeperContext>(options =>
-                options.UseMySql(dbConnectionString));
-
-            services.AddTransient<IEmailSender, EmailSender>();
+            services.AddDbContext<GatekeeperContext>(options => options.UseMySql(dbConnectionString));
 
             services.AddIdentity<GatekeeperUser, IdentityRole>()
                 .AddEntityFrameworkStores<GatekeeperContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddDataProtection()
-                .AddSigningCredentialFromConfig(GatekeeperConfig);
+            services.AddDataProtection().AddCredentialsForEnvironment(environment, gatekeeperConfig);
 
             services.AddIdentityServer(options => {
-                    options.UserInteraction.LoginUrl = "/Identity/Account/Login";
-                    options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
-                })
-                .AddSigningCredentialFromConfig(GatekeeperConfig)
-                .AddConfigurationStore(options =>
-                {
-                    options.ConfigureDbContext = dbBuilder => dbBuilder.UseMySql(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
-                })
-                .AddOperationalStore(options =>
-                {
-                    options.ConfigureDbContext = dbBuilder => dbBuilder.UseMySql(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
-                    options.EnableTokenCleanup = true;
-                })
-                .AddAspNetIdentity<GatekeeperUser>();
+                options.UserInteraction.LoginUrl = "/Identity/Account/Login";
+                options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
+            })
+            .AddCredentialsForEnvironment(environment, gatekeeperConfig)
+            .AddConfigurationStore(options =>
+            {
+                options.ConfigureDbContext = dbBuilder => dbBuilder.UseMySql(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+            })
+            .AddOperationalStore(options =>
+            {
+                options.ConfigureDbContext = dbBuilder => dbBuilder.UseMySql(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+                options.EnableTokenCleanup = true;
+            })
+            .AddAspNetIdentity<GatekeeperUser>();
 
             services.AddAuthentication().AddIdentityServerAuthentication("token", options =>
             {
-                options.Authority = GatekeeperConfig.GetValue<string>("BaseUrl");
-                options.ApiName = "gatekeeper";
+                options.Authority = gatekeeperConfig.GetValue<string>("OAuthAuthorityUrl");
+                options.ApiName = gatekeeperConfig.GetValue<string>("ApiResourceName");
             });
 
             services.AddAuthorization(options =>
@@ -103,22 +96,22 @@ namespace Gatekeeper
                 options.AccessDeniedPath = new PathString("/Identity/Account/AccessDenied");
             });
 
-            services.Configure<ForwardedHeadersOptions>(options =>
+            if (!environment.IsDevelopment())
             {
-                options.KnownProxies.Add(Dns.GetHostEntry("http://nginx").AddressList[0]);
-            });
-
-            services.AddScoped<IApiResourceRepository, ApiResourceRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IClientRepository, ClientRepository>();
+                services.Configure<ForwardedHeadersOptions>(options =>
+                {
+                    var proxyAddresses = Dns.GetHostAddresses(gatekeeperConfig.GetValue<string>("ReverseProxyHostname"));
+                    foreach(var ip in proxyAddresses)
+                    {
+                        options.KnownProxies.Add(ip);
+                    }
+                });
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ConfigurationDbContext configurationDbContext)
         {
-            UpdateDatabase(app);
-            GatekeeperIdentityResources.PreloadResources(configurationDbContext);
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -126,10 +119,12 @@ namespace Gatekeeper
             }
             else
             {
-                app.UsePathBase("/gatekeeper");
+                var pathBase = gatekeeperConfig.GetValue<string>("PathBase");
+                RunMigrations(app);
+                app.UsePathBase(pathBase);
                 app.Use((context, next) =>
                 {
-                    context.Request.PathBase = new PathString("/gatekeeper");
+                    context.Request.PathBase = new PathString(pathBase);
                     return next();
                 });
                 app.UseForwardedHeaders(new ForwardedHeadersOptions
@@ -139,6 +134,7 @@ namespace Gatekeeper
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+            GatekeeperIdentityResources.PreloadResources(configurationDbContext);
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -154,23 +150,22 @@ namespace Gatekeeper
             });
         }
 
-        private static void UpdateDatabase(IApplicationBuilder app)
+        private static void RunMigrations(IApplicationBuilder app)
         {
-            using (var serviceScope = app.ApplicationServices
-                .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
+            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
-                using (var context = serviceScope.ServiceProvider.GetService<GatekeeperContext>())
+                var serviceProvider = serviceScope.ServiceProvider;
+                List<DbContext> contexts = new List<DbContext>()
+                {
+                    serviceProvider.GetService<GatekeeperContext>(),
+                    serviceProvider.GetService<ConfigurationDbContext>(),
+                    serviceProvider.GetService<PersistedGrantDbContext>(),
+                };
+
+                foreach (var context in contexts)
                 {
                     context.Database.Migrate();
-                }
-                using (var context = serviceScope.ServiceProvider.GetService<ConfigurationDbContext>())
-                {
-                    context.Database.Migrate();
-                }
-                using (var context = serviceScope.ServiceProvider.GetService<PersistedGrantDbContext>())
-                {
-                    context.Database.Migrate();
+                    context.Dispose();
                 }
             }
         }

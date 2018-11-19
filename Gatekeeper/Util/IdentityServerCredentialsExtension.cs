@@ -1,5 +1,6 @@
 // Adapted from code at http://amilspage.com/signing-certificates-idsv4/
 
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -11,20 +12,17 @@ namespace Gatekeeper.Util
 {
     public static class IdentityServerCredentialExtension
     {
-        public static IIdentityServerBuilder AddSigningCredentialFromConfig(
-            this IIdentityServerBuilder builder, IConfigurationSection gatekeeperConfig)
+        public static IIdentityServerBuilder AddCredentialsForEnvironment(
+            this IIdentityServerBuilder builder, IHostingEnvironment environment, IConfigurationSection gatekeeperConfig)
         {
             string certStorageType = gatekeeperConfig.GetValue<string>("CertStorageType");
 
-            switch (certStorageType)
+            if(!environment.IsDevelopment())
             {
-                case "File":
-                    AddCertificateFromFile(builder, gatekeeperConfig);
-                    break;
-
-                default:
-                    builder.AddDeveloperSigningCredential();
-                    break;
+                AddCertificateFromFile(builder, gatekeeperConfig);
+            } else
+            {
+                builder.AddDeveloperSigningCredential();
             }
 
             return builder;
