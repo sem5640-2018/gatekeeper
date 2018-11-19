@@ -149,21 +149,20 @@ namespace Gatekeeper
 
         private static void UpdateDatabase(IApplicationBuilder app)
         {
-            using (var serviceScope = app.ApplicationServices
-                .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
+            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
-                using (var context = serviceScope.ServiceProvider.GetService<GatekeeperContext>())
+                var serviceProvider = serviceScope.ServiceProvider;
+                List<DbContext> contexts = new List<DbContext>()
+                {
+                    serviceProvider.GetService<GatekeeperContext>(),
+                    serviceProvider.GetService<ConfigurationDbContext>(),
+                    serviceProvider.GetService<PersistedGrantDbContext>(),
+                };
+
+                foreach (var context in contexts)
                 {
                     context.Database.Migrate();
-                }
-                using (var context = serviceScope.ServiceProvider.GetService<ConfigurationDbContext>())
-                {
-                    context.Database.Migrate();
-                }
-                using (var context = serviceScope.ServiceProvider.GetService<PersistedGrantDbContext>())
-                {
-                    context.Database.Migrate();
+                    context.Dispose();
                 }
             }
         }
