@@ -11,19 +11,23 @@ In **production**, these should actually be set in the environment.  In **develo
 [dotnetconfig]: https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-2.1
 [vs_envvars]: ./vs_envvars.png
 
-## Required Keys
+## Required Keys (All Environments)
 
 | Environment Variable | Description |
 |-|-|
 | ASPNETCORE_ENVIRONMENT | Runtime environment, should be 'Development', 'Staging', or 'Production'.  Defaults to 'Production'|
-| ConnectionStrings__GatekeeperContextConnection | MSSQL connection string. |
-| Gatekeeper__KeysPath | Path to the directory where .NET should persist auto-managed data protection keys. |
-| Gatekeeper__CertStorageType | Defines where the application should load certificates from.  Options are 'File', or 'Development'. See [certificates documentation](certificates.md). |
-| Gatekeeper__BaseUrl | The full HTTPS url of this gatekeeper instance.  Required as the application has APIs protected by the very OAuth authority it provides. |
+| ConnectionStrings__GatekeeperContext | MariaDB connection string. |
+| Gatekeeper__OAuthAuthorityUrl | HTTPS url of the OAuth authority.  This will actually be the URL of gatekeeper itself, as it also provides APIs protected by itself. |
+| Gatekeeper__ApiResourceName | The name of this API resource. |
 
-## Optional Keys
+## Required Keys (Production + Staging Environments)
+In addition to the above keys, you will also require:
+
 | Environment Variable | Description |
 |-|-|
-| Gatekeeper__CertsPath | **Must be set if using 'File' CertStorageType.** Path to the directory containing application certificates (is4cert.pfx and dpkcert.pfx). |
-| Gatekeeper__TokenCertPassword | **Must be set if using 'File' CertStorageType.** The password used to protect your token signing certificate (is4cert.pfx). |
-| Gatekeeper__DPKCertPassword |**Must be set if using 'File' CertStorageType.** The password used to protect your .NET data protection key certificate (dpkcert.pfx). |
+| Gatekeeper__ReverseProxyHostname | The internal docker hostname of the reverse proxy being used. |
+| Gatekeeper__PathBase | The pathbase (name of the directory) that Gatekeeper is being served from. |
+| Gatekeeper__KeysPath | Path to the directory where .NET should persist auto-managed data protection keys. |
+| Gatekeeper__CertsPath |  Path to the directory containing application certificates (is4cert.pfx and dpkcert.pfx). |
+| Gatekeeper__TokenCertPassword | The password used to protect your token signing certificate (is4cert.pfx). |
+| Gatekeeper__DPKCertPassword | The password used to protect your .NET data protection key certificate (dpkcert.pfx). |

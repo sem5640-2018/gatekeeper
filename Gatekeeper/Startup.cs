@@ -22,22 +22,31 @@ namespace Gatekeeper
 {
     public class Startup
     {
-        private IConfiguration Configuration { get; }
-        private IConfigurationSection GatekeeperConfig { get; }
+        private readonly IConfiguration config;
+        private readonly IConfigurationSection gatekeeperConfig;
+        private readonly IHostingEnvironment environment;
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration config, IHostingEnvironment environment)
         {
-            Configuration = configuration;
-            GatekeeperConfig = Configuration.GetSection("Gatekeeper");
+            this.environment = environment;
+            this.config = config;
+            gatekeeperConfig = this.config.GetSection("Gatekeeper");
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var dbConnectionString = config.GetConnectionString("GatekeeperContext");
+            var migrationsAssembly = "Gatekeeper";
+
+            services.AddScoped<IApiResourceRepository, ApiResourceRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IClientRepository, ClientRepository>();
+            services.AddTransient<IEmailSender, EmailSender>();
+
             services.Configure<CookiePolicyOptions>(options =>
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
+                options.CheckConsentNeeded = context => false; // We only use essential cookies
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
@@ -47,26 +56,19 @@ namespace Gatekeeper
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            var dbConnectionString = Configuration.GetConnectionString("GatekeeperContextConnection");
-            var migrationsAssembly = "Gatekeeper";
-
-            services.AddDbContext<GatekeeperContext>(options =>
-                options.UseMySql(dbConnectionString));
-
-            services.AddTransient<IEmailSender, EmailSender>();
+            services.AddDbContext<GatekeeperContext>(options => options.UseMySql(dbConnectionString));
 
             services.AddIdentity<GatekeeperUser, IdentityRole>()
                 .AddEntityFrameworkStores<GatekeeperContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddDataProtection()
-                .AddSigningCredentialFromConfig(GatekeeperConfig);
+            services.AddDataProtection().AddCredentialsForEnvironment(environment, gatekeeperConfig);
 
             services.AddIdentityServer(options => {
                 options.UserInteraction.LoginUrl = "/Identity/Account/Login";
                 options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
             })
-            .AddSigningCredentialFromConfig(GatekeeperConfig)
+            .AddCredentialsForEnvironment(environment, gatekeeperConfig)
             .AddConfigurationStore(options =>
             {
                 options.ConfigureDbContext = dbBuilder => dbBuilder.UseMySql(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
@@ -80,8 +82,8 @@ namespace Gatekeeper
 
             services.AddAuthentication().AddIdentityServerAuthentication("token", options =>
             {
-                options.Authority = GatekeeperConfig.GetValue<string>("BaseUrl");
-                options.ApiName = "gatekeeper";
+                options.Authority = gatekeeperConfig.GetValue<string>("OAuthAuthorityUrl");
+                options.ApiName = gatekeeperConfig.GetValue<string>("ApiResourceName");
             });
 
             services.AddAuthorization(options =>
@@ -94,14 +96,17 @@ namespace Gatekeeper
                 options.AccessDeniedPath = new PathString("/Identity/Account/AccessDenied");
             });
 
-            services.Configure<ForwardedHeadersOptions>(options =>
+            if (!environment.IsDevelopment())
             {
-                options.KnownProxies.Add(Dns.GetHostEntry("http://nginx").AddressList[0]);
-            });
-
-            services.AddScoped<IApiResourceRepository, ApiResourceRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IClientRepository, ClientRepository>();
+                services.Configure<ForwardedHeadersOptions>(options =>
+                {
+                    var proxyAddresses = Dns.GetHostAddresses(gatekeeperConfig.GetValue<string>("ReverseProxyHostname"));
+                    foreach(var ip in proxyAddresses)
+                    {
+                        options.KnownProxies.Add(ip);
+                    }
+                });
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -114,11 +119,12 @@ namespace Gatekeeper
             }
             else
             {
+                var pathBase = gatekeeperConfig.GetValue<string>("PathBase");
                 RunMigrations(app);
-                app.UsePathBase("/gatekeeper");
+                app.UsePathBase(pathBase);
                 app.Use((context, next) =>
                 {
-                    context.Request.PathBase = new PathString("/gatekeeper");
+                    context.Request.PathBase = new PathString(pathBase);
                     return next();
                 });
                 app.UseForwardedHeaders(new ForwardedHeadersOptions
