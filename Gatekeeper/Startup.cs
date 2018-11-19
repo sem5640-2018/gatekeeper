@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 namespace Gatekeeper
 {
@@ -30,7 +31,11 @@ namespace Gatekeeper
         {
             this.environment = environment;
             this.config = config;
-            gatekeeperConfig = this.config.GetSection("Gatekeeper");
+            this.gatekeeperConfig = this.config.GetSection("Gatekeeper");
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(config)
+                .CreateLogger();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
