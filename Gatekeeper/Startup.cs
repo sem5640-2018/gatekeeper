@@ -68,17 +68,17 @@ namespace Gatekeeper
                 options.UserInteraction.LoginUrl = "/Identity/Account/Login";
                 options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
             })
-                .AddSigningCredentialFromConfig(GatekeeperConfig)
-                .AddConfigurationStore(options =>
-                {
-                    options.ConfigureDbContext = dbBuilder => dbBuilder.UseMySql(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
-                })
-                .AddOperationalStore(options =>
-                {
-                    options.ConfigureDbContext = dbBuilder => dbBuilder.UseMySql(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
-                    options.EnableTokenCleanup = true;
-                })
-                .AddAspNetIdentity<GatekeeperUser>();
+            .AddSigningCredentialFromConfig(GatekeeperConfig)
+            .AddConfigurationStore(options =>
+            {
+                options.ConfigureDbContext = dbBuilder => dbBuilder.UseMySql(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+            })
+            .AddOperationalStore(options =>
+            {
+                options.ConfigureDbContext = dbBuilder => dbBuilder.UseMySql(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+                options.EnableTokenCleanup = true;
+            })
+            .AddAspNetIdentity<GatekeeperUser>();
 
             services.AddAuthentication().AddIdentityServerAuthentication("token", options =>
             {
