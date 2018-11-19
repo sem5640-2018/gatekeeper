@@ -47,7 +47,7 @@ namespace Gatekeeper.Areas.Identity.Pages.Account
             public bool RememberMe { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public void OnGet(string returnUrl = null)
         {
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
