@@ -67,13 +67,13 @@ namespace Gatekeeper
                 .AddEntityFrameworkStores<GatekeeperContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddDataProtection().AddCredentialsForEnvironment(environment, gatekeeperConfig);
+            services.AddDataProtection().AddCredentialsForEnvironment(environment, gatekeeperConfig, Log.Logger);
 
             services.AddIdentityServer(options => {
                 options.UserInteraction.LoginUrl = "/Identity/Account/Login";
                 options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
             })
-            .AddCredentialsForEnvironment(environment, gatekeeperConfig)
+            .AddCredentialsForEnvironment(environment, gatekeeperConfig, Log.Logger)
             .AddConfigurationStore(options =>
             {
                 options.ConfigureDbContext = dbBuilder => dbBuilder.UseMySql(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
