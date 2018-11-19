@@ -30,7 +30,7 @@ namespace Gatekeeper.Util
 
         private static void AddCertificateFromFile(IIdentityServerBuilder builder, IConfigurationSection gatekeeperConfig)
         {
-            var cert = Path.Combine(gatekeeperConfig.GetValue<string>("CertsPath"), "is4cert.pfx");
+            var cert = Path.Combine(gatekeeperConfig.GetValue<string>("CertsPath", "/certs"), "is4cert.pfx");
             var certPassword = gatekeeperConfig.GetValue<string>("TokenCertPassword");
 
             if (File.Exists(cert))

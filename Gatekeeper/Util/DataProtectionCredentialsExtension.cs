@@ -25,9 +25,9 @@ namespace Gatekeeper.Util
 
         private static void AddCertificateFromFile(IDataProtectionBuilder builder, IConfigurationSection gatekeeperConfig)
         {
-            var certPath = Path.Combine(gatekeeperConfig.GetValue<string>("CertsPath"), "dpkcert.pfx");
+            var certPath = Path.Combine(gatekeeperConfig.GetValue<string>("CertsPath", "/certs"), "dpkcert.pfx");
             var certPassword = gatekeeperConfig.GetValue<string>("DPKCertPassword");
-            var keysPath = gatekeeperConfig.GetValue<string>("KeysPath");
+            var keysPath = gatekeeperConfig.GetValue<string>("KeysPath", "/keys");
 
             if (File.Exists(certPath))
             {

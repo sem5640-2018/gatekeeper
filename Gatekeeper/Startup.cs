@@ -83,7 +83,7 @@ namespace Gatekeeper
             services.AddAuthentication().AddIdentityServerAuthentication("token", options =>
             {
                 options.Authority = gatekeeperConfig.GetValue<string>("OAuthAuthorityUrl");
-                options.ApiName = gatekeeperConfig.GetValue<string>("ApiResourceName");
+                options.ApiName = gatekeeperConfig.GetValue<string>("ApiResourceName", "gatekeeper");
             });
 
             services.AddAuthorization(options =>
@@ -100,7 +100,7 @@ namespace Gatekeeper
             {
                 services.Configure<ForwardedHeadersOptions>(options =>
                 {
-                    var proxyAddresses = Dns.GetHostAddresses(gatekeeperConfig.GetValue<string>("ReverseProxyHostname"));
+                    var proxyAddresses = Dns.GetHostAddresses(gatekeeperConfig.GetValue<string>("ReverseProxyHostname", "http://nginx"));
                     foreach(var ip in proxyAddresses)
                     {
                         options.KnownProxies.Add(ip);
@@ -119,7 +119,7 @@ namespace Gatekeeper
             }
             else
             {
-                var pathBase = gatekeeperConfig.GetValue<string>("PathBase");
+                var pathBase = gatekeeperConfig.GetValue<string>("PathBase", "/gatekeeper");
                 RunMigrations(app);
                 app.UsePathBase(pathBase);
                 app.Use((context, next) =>
