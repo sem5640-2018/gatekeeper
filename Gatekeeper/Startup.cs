@@ -65,9 +65,9 @@ namespace Gatekeeper
                 .AddSigningCredentialFromConfig(GatekeeperConfig);
 
             services.AddIdentityServer(options => {
-                    options.UserInteraction.LoginUrl = "/Identity/Account/Login";
-                    options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
-                })
+                options.UserInteraction.LoginUrl = "/Identity/Account/Login";
+                options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
+            })
                 .AddSigningCredentialFromConfig(GatekeeperConfig)
                 .AddConfigurationStore(options =>
                 {
