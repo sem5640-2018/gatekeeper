@@ -1,16 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using Gatekeeper.Areas.Identity.Data;
+﻿using Gatekeeper.Areas.Identity.Data;
 using Gatekeeper.Areas.Identity.Services;
 using Gatekeeper.Models;
 using Gatekeeper.Repositories;
 using Gatekeeper.Util;
 using IdentityServer4.EntityFramework.DbContexts;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +15,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using System.Collections.Generic;
+using System.Net;
 
 namespace Gatekeeper
 {
@@ -31,7 +30,7 @@ namespace Gatekeeper
         {
             this.environment = environment;
             this.config = config;
-            this.gatekeeperConfig = this.config.GetSection("Gatekeeper");
+            gatekeeperConfig = this.config.GetSection("Gatekeeper");
 
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(config)
@@ -56,7 +55,8 @@ namespace Gatekeeper
             });
 
             services.AddMvc()
-                .AddRazorPagesOptions(options => {
+                .AddRazorPagesOptions(options =>
+                {
                     options.Conventions.AddAreaPageRoute("Identity", "/Account/Manage/Index", "");
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -69,7 +69,8 @@ namespace Gatekeeper
 
             services.AddDataProtection().AddCredentialsForEnvironment(environment, gatekeeperConfig, Log.Logger);
 
-            services.AddIdentityServer(options => {
+            services.AddIdentityServer(options =>
+            {
                 options.UserInteraction.LoginUrl = "/Identity/Account/Login";
                 options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
                 options.UserInteraction.ErrorUrl = "/Error";
@@ -107,7 +108,7 @@ namespace Gatekeeper
                 services.Configure<ForwardedHeadersOptions>(options =>
                 {
                     var proxyAddresses = Dns.GetHostAddresses(gatekeeperConfig.GetValue<string>("ReverseProxyHostname", "http://nginx"));
-                    foreach(var ip in proxyAddresses)
+                    foreach (var ip in proxyAddresses)
                     {
                         options.KnownProxies.Add(ip);
                     }

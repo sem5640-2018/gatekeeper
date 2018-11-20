@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Gatekeeper.Areas.Identity.Data;
-using Gatekeeper.Repositories;
+﻿using Gatekeeper.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Gatekeeper.Controllers
 {
@@ -19,7 +14,7 @@ namespace Gatekeeper.Controllers
 
         public UsersController(IUserRepository repository)
         {
-            Repository= repository;
+            Repository = repository;
         }
 
         // GET: /Users/5
@@ -33,7 +28,7 @@ namespace Gatekeeper.Controllers
             }
 
             var user = await Repository.GetByIdAsync(uuid);
-            if(user == null)
+            if (user == null)
             {
                 return NotFound();
             }

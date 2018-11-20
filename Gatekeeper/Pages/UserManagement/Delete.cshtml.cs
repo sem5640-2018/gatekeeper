@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Gatekeeper.Areas.Identity.Data;
+﻿using Gatekeeper.Areas.Identity.Data;
 using Gatekeeper.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Threading.Tasks;
 
 namespace Gatekeeper.Pages.UserManagement
 {

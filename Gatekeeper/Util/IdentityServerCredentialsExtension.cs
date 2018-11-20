@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using System;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 
@@ -19,7 +18,8 @@ namespace Gatekeeper.Util
             if (!environment.IsDevelopment())
             {
                 AddCertificateFromFile(builder, gatekeeperConfig, logger);
-            } else
+            }
+            else
             {
                 builder.AddDeveloperSigningCredential();
                 logger.Information("Using Developer signing credentials.");
