@@ -72,6 +72,7 @@ namespace Gatekeeper
             services.AddIdentityServer(options => {
                 options.UserInteraction.LoginUrl = "/Identity/Account/Login";
                 options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
+                options.UserInteraction.ErrorUrl = "/Error";
             })
             .AddCredentialsForEnvironment(environment, gatekeeperConfig, Log.Logger)
             .AddConfigurationStore(options =>
@@ -136,7 +137,7 @@ namespace Gatekeeper
                 {
                     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
                 });
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
             GatekeeperIdentityResources.PreloadResources(configurationDbContext);

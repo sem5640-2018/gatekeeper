@@ -8,10 +8,10 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
-namespace Gatekeeper.Areas.Identity.Pages
+namespace Gatekeeper.Pages
 {
     [AllowAnonymous]
-    public class ErrorModel : PageModel
+    public class ErrorViewModel : PageModel
     {
         public string RequestId { get; set; }
 
