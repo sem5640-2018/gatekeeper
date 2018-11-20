@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 namespace Gatekeeper
 {
@@ -30,7 +31,11 @@ namespace Gatekeeper
         {
             this.environment = environment;
             this.config = config;
-            gatekeeperConfig = this.config.GetSection("Gatekeeper");
+            this.gatekeeperConfig = this.config.GetSection("Gatekeeper");
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(config)
+                .CreateLogger();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -62,13 +67,14 @@ namespace Gatekeeper
                 .AddEntityFrameworkStores<GatekeeperContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddDataProtection().AddCredentialsForEnvironment(environment, gatekeeperConfig);
+            services.AddDataProtection().AddCredentialsForEnvironment(environment, gatekeeperConfig, Log.Logger);
 
             services.AddIdentityServer(options => {
                 options.UserInteraction.LoginUrl = "/Identity/Account/Login";
                 options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
+                options.UserInteraction.ErrorUrl = "/Error";
             })
-            .AddCredentialsForEnvironment(environment, gatekeeperConfig)
+            .AddCredentialsForEnvironment(environment, gatekeeperConfig, Log.Logger)
             .AddConfigurationStore(options =>
             {
                 options.ConfigureDbContext = dbBuilder => dbBuilder.UseMySql(dbConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
@@ -83,7 +89,7 @@ namespace Gatekeeper
             services.AddAuthentication().AddIdentityServerAuthentication("token", options =>
             {
                 options.Authority = gatekeeperConfig.GetValue<string>("OAuthAuthorityUrl");
-                options.ApiName = gatekeeperConfig.GetValue<string>("ApiResourceName");
+                options.ApiName = gatekeeperConfig.GetValue<string>("ApiResourceName", "gatekeeper");
             });
 
             services.AddAuthorization(options =>
@@ -100,7 +106,7 @@ namespace Gatekeeper
             {
                 services.Configure<ForwardedHeadersOptions>(options =>
                 {
-                    var proxyAddresses = Dns.GetHostAddresses(gatekeeperConfig.GetValue<string>("ReverseProxyHostname"));
+                    var proxyAddresses = Dns.GetHostAddresses(gatekeeperConfig.GetValue<string>("ReverseProxyHostname", "http://nginx"));
                     foreach(var ip in proxyAddresses)
                     {
                         options.KnownProxies.Add(ip);
@@ -119,7 +125,7 @@ namespace Gatekeeper
             }
             else
             {
-                var pathBase = gatekeeperConfig.GetValue<string>("PathBase");
+                var pathBase = gatekeeperConfig.GetValue<string>("PathBase", "/gatekeeper");
                 RunMigrations(app);
                 app.UsePathBase(pathBase);
                 app.Use((context, next) =>
@@ -131,7 +137,7 @@ namespace Gatekeeper
                 {
                     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
                 });
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
             GatekeeperIdentityResources.PreloadResources(configurationDbContext);

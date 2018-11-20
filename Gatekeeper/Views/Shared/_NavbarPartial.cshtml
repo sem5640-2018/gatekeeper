@@ -1,0 +1,8 @@
+﻿@if (User.HasClaim("user_type", "administrator"))
+{
+    <ul class="nav navbar-nav">
+        <li><a asp-page="/UserManagement/Index">Users</a></li>
+        <li><a asp-page="/ClientManagement/Index">Clients</a></li>
+        <li><a asp-controller="ApiResources" asp-action="Index">API Resources</a></li>
+    </ul>
+}
