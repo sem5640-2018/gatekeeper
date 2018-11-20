@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 namespace Gatekeeper.Areas.Identity.Pages.Account
 {
@@ -71,6 +72,8 @@ namespace Gatekeeper.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
+                    await _userManager.AddClaimAsync(user, new Claim("user_type", "member"));
+                    await _userManager.AddClaimAsync(user, new Claim("locale", "en_GB"));
                     _logger.LogInformation("User created a new account with password.");
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
