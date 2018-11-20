@@ -39,23 +39,28 @@ namespace Gatekeeper.Pages.ClientManagement
         public class InputModel
         {
             [Required]
+            [Display(Name = "Client ID")]
             public string ClientId { get; set; }
 
             [Required]
+            [Display(Name = "Client Name")]
             public string ClientName { get; set; }
 
             [Required]
+            [Display(Name = "Grant Types")]
             public List<string> GrantTypes { get; set; }
 
             [Required]
-            [Url]
+            [Display(Name = "Redirect URIs", Description = "Space-seperated list of valid Redirect URIs.")]
             public string RedirectUri { get; set; }
 
             [Required]
+            [Display(Name = "Scopes", Description = "Space-seperated list of scopes this client can access.")]
             public string Scopes { get; set; }
 
             [Required]
             [DataType("password")]
+            [Display(Name = "Client Secret")]
             public string ClientSecret { get; set; }
 
         }
@@ -79,7 +84,7 @@ namespace Gatekeeper.Pages.ClientManagement
                 AllowOfflineAccess = true,
                 Enabled = true,
                 AllowedGrantTypes = Input.GrantTypes,
-                RedirectUris = { Input.RedirectUri },
+                RedirectUris = Input.RedirectUri.Split(" "),
                 AllowedScopes = Input.Scopes.Split(" "),
                 RequireConsent = false,
                 ClientSecrets =
