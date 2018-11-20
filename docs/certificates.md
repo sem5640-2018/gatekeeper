@@ -2,7 +2,7 @@
 
 ## Overview
 
-In Development, certificates are automatically generated and handled for you.  All you need to do is set the `Development` certificate storage type in the [runtime configuration](runtime-configuration.md).
+In Development, certificates are automatically generated and handled for you.
 
 For other environments (staging and production) this is not appropriate, so you must create the certificates and ensure they are persisted correctly.
 
@@ -41,4 +41,4 @@ You should now have `is4cert.pfx` in your current working directory.
 
 Certificates must be stored in a location accessible to the application.  For staging/production deployments, the certificate should typically remain the same throughout deployments - this means that they should be persisted in an appropriate place such as docker volumes.
 
-Follow the instructions in [runtime configuration](runtime-configuration.md) to set the `File` certificate storage type, ensuring that you also set the optional keys required for this storage type.
+Follow the instructions in [runtime configuration](runtime-configuration.md) to configure the certificate locations.
