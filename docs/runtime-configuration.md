@@ -25,9 +25,11 @@ In addition to the above keys, you will also require:
 
 | Environment Variable | Default | Description |
 |-|-|-|
+| Kestrel__Certificates__Default__Path | N/A | Path to the certificate to use for HTTPS. |
+| Kestrel__Certificates__Default__Password | N/A | Password for the HTTPS certificate. |
 | Gatekeeper__ReverseProxyHostname | http://nginx | The internal docker hostname of the reverse proxy being used. |
 | Gatekeeper__PathBase | /gatekeeper | The pathbase (name of the directory) that Gatekeeper is being served from. |
-| Gatekeeper__KeysPath | /keys | Path to the directory where .NET should persist auto-managed data protection keys. |
-| Gatekeeper__CertsPath |  /certs | Path to the directory containing application certificates (is4cert.pfx and dpkcert.pfx). |
+| Gatekeeper__KeysPath | /keys/gatekeeper | Path to the directory where .NET should persist auto-managed data protection keys. |
+| Gatekeeper__CertsPath | /certs/gatekeeper | Path to the directory containing application certificates (is4cert.pfx and dpkcert.pfx). |
 | Gatekeeper__TokenCertPassword | N/A | The password used to protect your token signing certificate (is4cert.pfx). |
 | Gatekeeper__DPKCertPassword | N/A | The password used to protect your .NET data protection key certificate (dpkcert.pfx). |
