@@ -93,8 +93,8 @@ Add the following code to your `ConfigureServices` method:
 var appConfiguration = Configuration.GetSection("YourAppName");
 services.AddAuthentication().AddIdentityServerAuthentication("token", options =>
 {
-    options.Authority = gatekeeperConfig.GetValue<string>("GatekeeperUrl");
-    options.ApiName = gatekeeperConfig.GetValue<string>("ApiResourceName");
+    options.Authority = appConfiguration.GetValue<string>("GatekeeperUrl");
+    options.ApiName = appConfiguration.GetValue<string>("ApiResourceName");
 });
 ```
 
@@ -118,7 +118,7 @@ public async Task<IActionResult> Get(string uuid)
 
 ## My app has both a UI, and an API I want to protect
 
-Just combined the two examples above.  Chain the call to `AddIdentityServerAuthentication` after the call to `AddOpenIdConnect`.
+Combine the two examples above.  Chain the call to `AddIdentityServerAuthentication` after the call to `AddOpenIdConnect`.
 
 The only difference here is that when using the `[Authorize]` attribute, you need to specify which challenge scheme to use.  Use `[Authorize(AuthenticationSchemes = "oidc")]` to protect pages where you want users to log in, and `[Authorize(AuthenticationSchemes = "token")]` to protect APIs.
 
