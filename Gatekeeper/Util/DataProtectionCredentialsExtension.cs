@@ -1,12 +1,11 @@
 // Adapted from code at http://amilspage.com/signing-certificates-idsv4/
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.DataProtection;
-using System;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Serilog;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.AspNetCore.Hosting;
-using Serilog;
 
 namespace Gatekeeper.Util
 {
@@ -19,10 +18,11 @@ namespace Gatekeeper.Util
             ILogger logger)
         {
             logger = logger.ForContext(typeof(DataProtectionCredentialExtension));
-            if(!environment.IsDevelopment())
+            if (!environment.IsDevelopment())
             {
                 AddCertificateFromFile(builder, gatekeeperConfig, logger);
-            } else
+            }
+            else
             {
                 logger.Information("Data Protection Keys using Developer mode.");
             }
