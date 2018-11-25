@@ -25,7 +25,7 @@
     }
   ],
   "paths": {
-    "/Status": {
+    "/api/Status": {
       "get": {
         "tags": [
           "Service"
@@ -39,7 +39,7 @@
         }
       }
     },
-    "/Users/{UUID}": {
+    "/api/Users/{UUID}": {
       "get": {
         "tags": [
           "Users"

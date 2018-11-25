@@ -2,7 +2,7 @@
 
 namespace Gatekeeper.Controllers
 {
-    [Route("/[controller]")]
+    [Route("/api/[controller]")]
     [ApiController]
     public class StatusController : ControllerBase
     {
