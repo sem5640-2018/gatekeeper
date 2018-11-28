@@ -17,8 +17,11 @@ In **production**, these should actually be set in the environment.  In **develo
 |-|-|-|
 | ASPNETCORE_ENVIRONMENT | Production | Runtime environment, should be 'Development', 'Staging', or 'Production'. |
 | ConnectionStrings__GatekeeperContext | N/A | MariaDB connection string. |
-| Gatekeeper__OAuthAuthorityUrl | N/A | HTTPS url of the OAuth authority.  This will actually be the URL of gatekeeper itself, as it also provides APIs protected by itself. |
+| Gatekeeper__GatekeeperUrl | N/A | HTTPS url of the OAuth authority.  This will actually be the URL of gatekeeper itself, as it also provides APIs protected by itself. |
+| Gatekeeper__ClientID | N/A | Client ID used to access other APIs. |
+| Gatekeeper__ClientSecret | N/A | Client secret. |
 | Gatekeeper__ApiResourceName | gatekeeper | The name of this API resource. |
+| Gatekeeper__CommsUrl | https://comms/ | The URL to the communications service. |
 
 ## Required Keys (Production + Staging Environments)
 In addition to the above keys, you will also require:
