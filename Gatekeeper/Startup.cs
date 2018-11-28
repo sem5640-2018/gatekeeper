@@ -2,6 +2,7 @@
 using Gatekeeper.Areas.Identity.Services;
 using Gatekeeper.Models;
 using Gatekeeper.Repositories;
+using Gatekeeper.Services;
 using Gatekeeper.Util;
 using IdentityServer4.EntityFramework.DbContexts;
 using Microsoft.AspNetCore.Builder;
@@ -15,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -47,6 +49,11 @@ namespace Gatekeeper
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IClientRepository, ClientRepository>();
             services.AddTransient<IEmailSender, EmailSender>();
+
+            services.AddHttpClient("comms", client => {
+                client.BaseAddress = new Uri(gatekeeperConfig.GetValue<string>("CommsUrl", "https://comms/"));
+            });
+            services.AddSingleton<ICommsApiClient, CommsApiClient>();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -89,7 +96,7 @@ namespace Gatekeeper
 
             services.AddAuthentication().AddIdentityServerAuthentication("token", options =>
             {
-                options.Authority = gatekeeperConfig.GetValue<string>("OAuthAuthorityUrl");
+                options.Authority = gatekeeperConfig.GetValue<string>("GatekeeperUrl");
                 options.ApiName = gatekeeperConfig.GetValue<string>("ApiResourceName", "gatekeeper");
             });
 

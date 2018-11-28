@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.UI.Services;
+﻿using Gatekeeper.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,10 +9,22 @@ namespace Gatekeeper.Areas.Identity.Services
 {
     public class EmailSender : IEmailSender
     {
-        public Task SendEmailAsync(string email, string subject, string htmlMessage)
+        private readonly ICommsApiClient client;
+
+        public EmailSender(ICommsApiClient commsClient)
         {
-            // TODO: Use Comms service when implemented
-            return Task.CompletedTask;
+            client = commsClient;
+        }
+
+        public async Task SendEmailAsync(string email, string subject, string htmlMessage)
+        {
+            var payload = new
+            {
+                EmailAddress = email,
+                Subject = subject,
+                Content = htmlMessage
+            };
+            await client.PostAsync("api/Email/ToEmail", payload);
         }
     }
 }
