@@ -16,7 +16,7 @@ Your application should load the client ID and secret from environment variables
 Add the following code to your `ConfigureServices` method:
 
 ```csharp
-var appConfiguration = Configuration.GetSection("YourAppName");
+var appConfig = Configuration.GetSection("YourAppName");
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 services.AddAuthentication(options =>
@@ -28,9 +28,9 @@ services.AddAuthentication(options =>
 .AddOpenIdConnect("oidc", options =>
 {
     options.SignInScheme = "Cookies";
-    options.Authority = appConfiguration.GetValue<string>("GatekeeperUrl");
-    options.ClientId = appConfiguration.GetValue<string>("ClientId");
-    options.ClientSecret = appConfiguration.GetValue<string>("ClientSecret");
+    options.Authority = appConfig.GetValue<string>("GatekeeperUrl");
+    options.ClientId = appConfig.GetValue<string>("ClientId");
+    options.ClientSecret = appConfig.GetValue<string>("ClientSecret");
     options.ResponseType = "code id_token";
     options.SaveTokens = true;
     options.GetClaimsFromUserInfoEndpoint = true;
@@ -90,16 +90,20 @@ Add the `IdentityServer4.AccessTokenValidation` NuGet package to your project.
 Add the following code to your `ConfigureServices` method:
 
 ```csharp
-var appConfiguration = Configuration.GetSection("YourAppName");
-services.AddAuthentication().AddIdentityServerAuthentication("token", options =>
+var appConfig = Configuration.GetSection("YourAppName");
+services.AddAuthentication(options =>
 {
-    options.Authority = appConfiguration.GetValue<string>("GatekeeperUrl");
-    options.ApiName = appConfiguration.GetValue<string>("ApiResourceName");
+    options.DefaultScheme = "Bearer";
+})
+.AddIdentityServerAuthentication("Bearer", options =>
+{
+    options.Authority = appConfig.GetValue<string>("GatekeeperUrl");
+    options.ApiName = appConfig.GetValue<string>("ApiResourceName");
 });
 ```
 
 
-Add the following line to your `Configure` method, after the call to `app.UseCookiePolicy();`:
+Add the following line to your `Configure` method, after the call to `app.UseHttpsRedirection();`:
 
 ```csharp
 app.UseAuthentication();
@@ -120,7 +124,7 @@ public async Task<IActionResult> Get(string uuid)
 
 Combine the two examples above.  Chain the call to `AddIdentityServerAuthentication` after the call to `AddOpenIdConnect`.
 
-The only difference here is that when using the `[Authorize]` attribute, you need to specify which challenge scheme to use.  Use `[Authorize(AuthenticationSchemes = "oidc")]` to protect pages where you want users to log in, and `[Authorize(AuthenticationSchemes = "token")]` to protect APIs.
+The only difference here is that when using the `[Authorize]` attribute, you need to specify which challenge scheme to use.  Use `[Authorize(AuthenticationSchemes = "oidc")]` to protect pages where you want users to log in, and `[Authorize(AuthenticationSchemes = "Bearer")]` to protect APIs.
 
 If you're also using Administrator/Coordinator policies, you can combine them:
 ```csharp
@@ -138,10 +142,8 @@ In any controller where you've used the `[Authorize]` attribute, the `User` obje
 [Authorize]
 public IActionResult Index()
 {
-    foreach (var claim in User.Claims)
-    {
-        Console.WriteLine(claim);
-    }
+    var userClaims = User.Claims;
+    // do something with the user claims
     return View();
 }
 ```
@@ -176,34 +178,123 @@ You can access the current user in a view simply by calling the `User` object.
 
 ## I need to make requests to another service's protected API
 
-These steps describe the basic process, however you will probably want to wrap the functionality in an easily reusable component.
+Essentially you need to obtain an AccessToken using your Client ID and Secret, and then use that access token when
+making requests to the API.
 
 Add the `IdentityModel` NuGet package to your application.
 
-Use the `DiscoveryClient` to automatically discover the OAuth endpoints.
-In your wrapper class, you should only need to perform this once at startup.
+An example of a class which manages getting tokens for you is below.  You could extend this example by adding methods such as PostAsync() to the interface/class.
+
 ```csharp
-var discovery = await DiscoveryClient.GetAsync(appConfig.GetValue<string>("GatekeeperUrl"));
+using IdentityModel.Client;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+namespace YourApp.Services
+{
+    public interface IApiClient
+    {
+        Task<HttpResponseMessage> GetAsync(string path);
+    }
+
+    public class ApiClient : IApiClient
+    {
+        private readonly HttpClient client;
+        private readonly IConfigurationSection appConfig;
+        private readonly DiscoveryCache discoveryCache;
+        private readonly ILogger logger;
+
+        public ApiClient(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<ApiClient> log)
+        {
+            appConfig = configuration.GetSection("YourAppName");
+            discoveryCache = new DiscoveryCache(appConfig.GetValue<string>("GatekeeperUrl"));
+            client = httpClientFactory.CreateClient("yourNamedHttpClient");
+            logger = log;
+        }
+
+        private async Task<string> GetTokenAsync()
+        {
+            var discovery = await discoveryCache.GetAsync();
+            if (discovery.IsError)
+            {
+                logger.LogError(discovery.Error);
+                throw new ApiClientException("Couldn't read discovery document.");
+            }
+
+            var tokenRequest = new ClientCredentialsTokenRequest
+            {
+                Address = discovery.TokenEndpoint,
+                ClientId = appConfig.GetValue<string>("ClientId"),
+                ClientSecret = appConfig.GetValue<string>("ClientSecret"),
+
+                // The ApiResourceName of the resources you want to access.
+                // Other valid values might be `comms`, `health_data_repository`, etc.
+                // Ask in #dev-gatekeeper for help
+                Scope = "gatekeeper"
+            };
+            var response = await client.RequestClientCredentialsTokenAsync(tokenRequest);
+            if(response.IsError)
+            {
+                logger.LogError(response.Error);
+                throw new ApiClientException("Couldn't retrieve access token.");
+            }
+            return response.AccessToken;
+        }
+
+        public async Task<HttpResponseMessage> GetAsync(string uri)
+        {
+            client.SetBearerToken(await GetTokenAsync());
+            return await client.GetAsync(uri);
+        }
+    }
+
+    public class ApiClientException : Exception
+    {
+        public ApiClientException(string message) : base(message)
+        {
+        }
+    }
+}
 ```
 
-Use the `TokenClient` to obtain an access token.
+In your `Startup.cs`, add it as a singleton:
+
 ```csharp
-var tokenClient = new TokenClient(
-    discovery.TokenEndpoint,
-    appConfig.GetValue<string>("ClientId"),
-    appConfig.GetValue<string>("ClientSecret")
-    );
-// health_data is used as an example here.  You'll need to know the ApiResource name of the API
-// you want to access.
-var tokenResponse = await tokenClient.RequestClientCredentialsAsync("health_data");
+services.AddHttpClient("yourNamedHttpClient", client => {
+    client.SomeOptions = "whatever httpclient opens you want to set go here"
+});
+services.AddSingleton<IApiClient, ApiClient>();
 ```
 
-Use the Bearer token you just obtained to make a call to the API:
-```csharp
-var client = new HttpClient(); // You should probably use an HTTP client factory
-client.SetBearerToken(tokenResponse.AccessToken);
+Use it as follows:
 
-var response = await client.GetAsync("https://aberfitness.biz/health_data/whatever-api-youre-calling");
+```csharp
+using Microsoft.AspNetCore.Mvc;
+
+namespace YourApp.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ExampleController : ControllerBase
+    {
+        private readonly IApiClient apiClient;
+
+        public ExampleController(IApiClient client) {
+            apiClient = client;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var someData = await apiClient.GetAsync("https://aberfitness.biz/some_service/whatever_api_youre_calling");
+            // do something with someData
+            return Ok();
+        }
+    }
+}
 ```
 
 ---
