@@ -9,6 +9,8 @@ namespace Gatekeeper.Repositories
     {
         Task<IList<GatekeeperUser>> GetAllAsync();
 
+        Task<IList<GatekeeperUser>> GetBatchAsync(string[] ids);
+
         Task<GatekeeperUser> GetByIdAsync(string id);
 
         Task UpdateAsync(GatekeeperUser user);
