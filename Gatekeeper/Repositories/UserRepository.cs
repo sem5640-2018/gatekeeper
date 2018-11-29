@@ -28,6 +28,11 @@ namespace Gatekeeper.Repositories
             return await _userManager.Users.ToListAsync();
         }
 
+        public async Task<IList<GatekeeperUser>> GetBatchAsync(string[] ids)
+        {
+            return await _userManager.Users.Where(u => ids.Contains(u.Id)).ToListAsync();
+        }
+
         public async Task<GatekeeperUser> GetByIdAsync(string id)
         {
             return await _userManager.FindByIdAsync(id);
