@@ -17,7 +17,7 @@ namespace Gatekeeper.Controllers
             Repository = repository;
         }
 
-        // GET: /Users/5
+        // GET: /Users/some-guid-string-abc
         [Authorize(AuthenticationSchemes = "token")]
         [HttpGet("{uuid}", Name = "Get")]
         public async Task<IActionResult> Get(string uuid)
@@ -39,6 +39,26 @@ namespace Gatekeeper.Controllers
                 { "email", user.Email },
                 { "name", user.UserName },
             });
+        }
+
+        // POST: /Users/Batch/
+        [Authorize(AuthenticationSchemes = "token")]
+        [HttpPost("Batch", Name = "GetBatch")]
+        public async Task<IActionResult> GetBatch([FromBody] string[] uuids)
+        {
+            var users = await Repository.GetBatchAsync(uuids);
+            var sanitizedUsers = new List<object>();
+            foreach (var user in users)
+            {
+                sanitizedUsers.Add(new
+                {
+                    id = user.Id,
+                    email = user.Email,
+                    name = user.UserName
+                });
+            }
+
+            return Ok(sanitizedUsers);
         }
     }
 }
