@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "description": "Gatekeeper user metadata API",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "title": "Gatekeeper",
     "contact": {
       "email": "arl4@aber.ac.uk"
@@ -20,7 +20,7 @@
   ],
   "servers": [
     {
-      "url": "https://m56-docker2.dcs.aber.ac.uk",
+      "url": "https://docker2.aberfitness.biz/gatekeeper/",
       "description": "Gatekeeper Staging instance"
     }
   ],
@@ -45,7 +45,7 @@
           "Users"
         ],
         "summary": "Get user metadata for a given user UUID",
-        "description": "Returns a single user",
+        "description": "Returns a single user metadata",
         "parameters": [
           {
             "name": "UUID",
@@ -72,11 +72,61 @@
           "400": {
             "description": "Invalid ID supplied"
           },
-          "403": {
-            "description": "Not authorised"
+          "401": {
+            "description": "Not Authorised"
           },
           "404": {
             "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "OAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/Users/Batch": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get user metadata for a batch of user UUIDs",
+        "description": "Returns an array of user metadata",
+        "parameters": [
+          {
+            "in": "body",
+            "description": "Array of UUIds",
+            "required": true,
+            "name": "uuids",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuidv4"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Not Authorised"
           }
         },
         "security": [
