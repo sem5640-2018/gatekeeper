@@ -49,6 +49,7 @@ namespace Gatekeeper
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IClientRepository, ClientRepository>();
             services.AddTransient<IEmailSender, EmailSender>();
+            services.AddHttpClient();
 
             services.AddHttpClient("comms", client => {
                 client.BaseAddress = new Uri(gatekeeperConfig.GetValue<string>("CommsUrl", "https://comms/"));
