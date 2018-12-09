@@ -1,43 +1,42 @@
 ﻿@model IdentityServer4.EntityFramework.Entities.ApiResource
 
 @{
-    ViewData["Title"] = "Create - API Resources";
+    ViewData["Title"] = "Create API Resource";
 }
-
-<h2>@ViewData["Title"]</h2>
 
 <partial name="_OAuthWarningPartial" />
 
-<h4>ApiResource</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DisplayName" class="control-label"></label>
-                <input asp-for="DisplayName" class="form-control" />
-                <span asp-validation-for="DisplayName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
-        </form>
-    </div>
-</div>
+    <div class="col-4">
+        <div class="card">
+            <div class="card-header">@ViewData["Title"]</div>
+            <div class="card-body">
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="DisplayName" class="control-label"></label>
+                        <input asp-for="DisplayName" class="form-control" />
+                        <span asp-validation-for="DisplayName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label"></label>
+                        <input asp-for="Description" class="form-control" />
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-success" />
+                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    </div>
+                </form>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {

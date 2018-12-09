@@ -2,35 +2,44 @@
 
 @model IndexModel
 @{
-    ViewData["Title"] = "List - User Management";
+    ViewData["Title"] = "Users";
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                @ViewData["Title"]
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Email Address
+                        </th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Users)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Email)
+                            </td>
+                            <td>
+                                <a asp-page="Edit" asp-route-id="@item.Id">Edit</a>
+                            </td>
+                            <td>
+                                <a asp-page="Delete" asp-route-id="@item.Id">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Email Address
-            </th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Users)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
-                <td>
-                    <a asp-page="Edit" asp-route-id="@item.Id">Edit</a>
-                </td>
-                <td>
-                    <a asp-page="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+        </div>
+    </div>
+</div>
+
