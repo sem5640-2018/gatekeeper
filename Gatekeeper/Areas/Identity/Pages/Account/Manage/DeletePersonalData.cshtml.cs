@@ -82,4 +82,3 @@ namespace Gatekeeper.Areas.Identity.Pages.Account.Manage
         }
     }
 }
-
