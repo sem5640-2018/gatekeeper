@@ -1,0 +1,38 @@
+﻿@page "{id}"
+@model EditModel
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<div class="row">
+    <div class="col-4">
+        <div class="card">
+            <div class="card-header">
+                @ViewData["Title"]
+            </div>
+            <div class="card-body">
+        <form id="edit-form" method="post">
+            <div class="form-group">
+                <label asp-for="Input.Email"></label>
+                <input asp-for="Input.Email" class="form-control" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.UserType"></label>
+                <select asp-for="Input.UserType" asp-items="Model.MemberTypes" class="form-control"></select>
+                <span asp-validation-for="Input.UserType" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-success">Save</button>
+            <a asp-page="Index" class="btn btn-primary">Cancel</a>
+        </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

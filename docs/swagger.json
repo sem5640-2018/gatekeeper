@@ -1,0 +1,175 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Gatekeeper user metadata API",
+    "version": "0.1.2",
+    "title": "Gatekeeper",
+    "contact": {
+      "email": "arl4@aber.ac.uk"
+    }
+  },
+  "tags": [
+    {
+      "name": "Service",
+      "description": "Service status"
+    },
+    {
+      "name": "Users",
+      "description": "User metadata"
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://docker2.aberfitness.biz/gatekeeper/",
+      "description": "Gatekeeper Staging instance"
+    }
+  ],
+  "paths": {
+    "/api/Status": {
+      "get": {
+        "tags": [
+          "Service"
+        ],
+        "summary": "Endpoint for monitoring software/load balancers to query service status.",
+        "description": "This endpoint can be queried to determine if the service is ready to accept requests.  A 200 response indicates that the service is ready.  Any other response indicates that it is not ready.",
+        "responses": {
+          "200": {
+            "description": "The service is healthy"
+          }
+        }
+      }
+    },
+    "/api/Users/{UUID}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get user metadata for a given user UUID",
+        "description": "Returns a single user metadata",
+        "parameters": [
+          {
+            "name": "UUID",
+            "in": "path",
+            "description": "UUID of the user to lookup",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuidv4"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "401": {
+            "description": "Not Authorised"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "OAuth2": []
+          }
+        ]
+      }
+    },
+    "/api/Users/Batch": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get user metadata for a batch of user UUIDs",
+        "description": "Returns an array of user metadata",
+        "parameters": [
+          {
+            "in": "body",
+            "description": "Array of UUIds",
+            "required": true,
+            "name": "uuids",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuidv4"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Not Authorised"
+          }
+        },
+        "security": [
+          {
+            "OAuth2": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "OAuth2": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "/connect/token",
+            "refreshUrl": "/connect/token",
+            "scopes": "user_metadata"
+          }
+        }
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuidv4"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "GitHub Repository",
+    "url": "https://github.com/sem5640-2018/gatekeeper"
+  }
+}

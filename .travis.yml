@@ -1,10 +1,40 @@
-language: csharp
-solution: gatekeeper.sln
-mono: none
-dotnet: 2.1
+env:
+  global:
+  - secure: X8f8HmBzXSQz+m0C1gx6idEZA4RlTx23Z8Bj/KoFozUI1xZD6Lr+dJwP9ZWctfyKME18+TulZBhStdenvMxrPyAPTwyLz2+Y1koHBxKVgtrzxb0USKAmRMgHpNCSRwZU1vNoDpDIgRQfkNQgrwDiE/JG0yGOXIOlo3sZSMyStWzp6xUmnSgVbcbZCMdh9WBAx2MSeZFmZ0AGQr/6nvLo3246F97/b7qjwNCbW9cQLdDB5bC7rBRKD5zDRciB854bu61IhDmF7ZQd8/nBrNXj63FuAjJZl1wNdUPDUGRQvbGExSYMXVNi4MsLBxINCEduXBum6saY4eCC2I8Baf8Ret/ZSReVls9F1NOc14SdHkobhSZcHOS/sSUudXALTNxiAMdlQnN4u+22AmVwAtLIm65j+3pYHGGdyWIpMWsoBUTzt8//cNUS3Kafg6RHJlWifSFNpRahisrGcW4+0y+7BFkLiQRvHdMg9ufm8FFd/wz4iiQwNBg+7Y2aOssHCQy7Ypl2jjuFhDj16wFWDy2Kxz1BjYFEVS04E7mqYgM0MIgd2kYIXsiDaRfhJOBaLRsabDvpVOVx7Ou6cshgZV1c3pU0sWgRkdA6WNKG9kQXiOtG6rqDTe30lMIEp/jUVuTKdna6jRi/zlZmdHkVaEmYY8ZShDesmr10jGucHJ/RaJM=
+  - secure: NuQM7uPNfys7AId0ePVBLSD9i7B1isETrO10xTeBs++y6b3gxUYp08Q/wFCWDZaQYKbfVw2h9npACNEDiby/lD1gU9hWgGFP3XRWDytLWHEaiTqR9BQ0ZfHdCDqNr/H2scxbN0btOS/skBgbImdpiVGZ48mPi4lplrdCRZl/L0mmqGMKvzPlaSYbUHUdhBUp5n2nbQ85pCh+TRwNRb9ELdTscQwc1kEnIBj9QJVB8BYskESYvywp3NYIQSCo557xp1CgxZHk99j5gnLllNGpCImHiIWmcETdK8JSSHwjhEYZDfsxgb1PnOLh08TuxrA6vlgl1wA2e2aivvmQcfyaXcZpBV9w6+C1JeHE9Kqr5fc9BjkG4azvEDtkrXD6grqGBurzejkPdxUxRP/BYLGRgcbcuxwZbmw9uQTcvc9Y9GgS5f3+ZPd6uLdfKpqqY5tJn25VfeSR4n+CE5yku+TcNQafZlh4YF1YAw44WAKQLEKimNb44hjRF7wSvttRpIzhcOHGOom9DShxUQZNzdiQEr64O8DHjUPH82GRKcZz3DL/nvpQVcok94HO+st/sUB3UefvDD29kl108Uge7efXpccX3vffdZQ6jlbve+B/+EHmnOT9WgCbbucM1qlTKQYH84hr13T77otCsASG/HnyM25T4QHs4MHGZ9zekeaX+7Y=
 
-script:
-- dotnet restore
+stages:
+  - test
+  - name: build_staging
+    if: branch = development AND type = push
+  - name: build_release
+    if: branch = master AND type = push
+
+jobs:
+  include:
+    - stage: test
+      name: "xUnit Tests"
+      language: csharp
+      solution: gatekeeper.sln
+      mono: none
+      dotnet: 2.1
+      script:
+        - dotnet restore
+        - dotnet test GatekeeperTest/GatekeeperTest.csproj
+    - stage: build_staging
+      name: "Build docker staging image"
+      sudo: required
+      services:
+        - docker
+      script:
+        - ./bin/docker.sh staging
+    - stage: build_release
+      name: "Build docker release image"
+      sudo: required
+      services:
+        - docker
+      script:
+        - ./bin/docker.sh latest
 
 notifications:
     slack: sem5640-2018:ouuibb583SpjRvEHwhoXE8qe
