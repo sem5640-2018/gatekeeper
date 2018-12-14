@@ -84,8 +84,13 @@ namespace Gatekeeper.Areas.Identity.Pages.Account.Manage
             var email = await _userManager.GetEmailAsync(user);
             if (Input.Email != email)
             {
-                var setEmailResult = await _userManager.SetEmailAsync(user, Input.Email);
-                if (!setEmailResult.Succeeded)
+                user.Email = Input.Email;
+                user.UserName = Input.Email;
+
+                var result = await _userManager.UpdateAsync(user);
+                await _userManager.SetEmailAsync(user, user.Email);
+
+                if (!result.Succeeded)
                 {
                     var userId = await _userManager.GetUserIdAsync(user);
                     throw new InvalidOperationException($"Unexpected error occurred setting email for user with ID '{userId}'.");
