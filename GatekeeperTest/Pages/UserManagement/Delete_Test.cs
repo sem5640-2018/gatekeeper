@@ -1,4 +1,5 @@
-﻿using Gatekeeper.Areas.Identity.Data;
+﻿using AberFitnessAuditLogger;
+using Gatekeeper.Areas.Identity.Data;
 using Gatekeeper.Pages.UserManagement;
 using Gatekeeper.Repositories;
 using GatekeeperTest.TestUtils;
@@ -16,12 +17,14 @@ namespace GatekeeperTest.Pages.UserManagement
     public class Delete_Test
     {
         private readonly Mock<IUserRepository> userRepository;
+        private readonly Mock<IAuditLogger> auditLogger;
         private readonly DeleteModel page;
 
         public Delete_Test()
         {
             userRepository = new Mock<IUserRepository>();
-            page = new DeleteModel(userRepository.Object);
+            auditLogger = new Mock<IAuditLogger>();
+            page = new DeleteModel(userRepository.Object, auditLogger.Object);
         }
 
         [Fact]

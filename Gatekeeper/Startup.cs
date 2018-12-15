@@ -1,4 +1,5 @@
-﻿using Gatekeeper.Areas.Identity.Data;
+﻿using AberFitnessAuditLogger;
+using Gatekeeper.Areas.Identity.Data;
 using Gatekeeper.Areas.Identity.Services;
 using Gatekeeper.Models;
 using Gatekeeper.Repositories;
@@ -49,9 +50,11 @@ namespace Gatekeeper
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IClientRepository, ClientRepository>();
             services.AddTransient<IEmailSender, EmailSender>();
+            services.AddScoped<IAuditLogger, AuditLogger>();
             services.AddHttpClient();
 
-            services.AddHttpClient("comms", client => {
+            services.AddHttpClient("comms", client =>
+            {
                 client.BaseAddress = new Uri(gatekeeperConfig.GetValue<string>("CommsUrl", "https://comms/"));
             });
             services.AddSingleton<ICommsApiClient, CommsApiClient>();
