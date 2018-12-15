@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using AberFitnessAuditLogger;
 
 namespace Gatekeeper.Areas.Identity.Pages.Account
 {
@@ -21,17 +22,20 @@ namespace Gatekeeper.Areas.Identity.Pages.Account
         private readonly UserManager<GatekeeperUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly IAuditLogger _auditLogger;
 
         public RegisterModel(
             UserManager<GatekeeperUser> userManager,
             SignInManager<GatekeeperUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IAuditLogger auditLogger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _auditLogger = auditLogger;
         }
 
         [BindProperty]
@@ -75,6 +79,7 @@ namespace Gatekeeper.Areas.Identity.Pages.Account
                     await _userManager.AddClaimAsync(user, new Claim("user_type", "member"));
                     await _userManager.AddClaimAsync(user, new Claim("locale", "en_GB"));
                     _logger.LogInformation("User created a new account with password.");
+                    await _auditLogger.log(user.Id, "Account created");
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var callbackUrl = Url.Page(

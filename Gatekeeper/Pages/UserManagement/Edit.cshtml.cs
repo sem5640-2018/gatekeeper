@@ -1,8 +1,10 @@
-﻿using Gatekeeper.Repositories;
+﻿using AberFitnessAuditLogger;
+using Gatekeeper.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -15,10 +17,24 @@ namespace Gatekeeper.Pages.UserManagement
     public class EditModel : PageModel
     {
         private readonly IUserRepository userRepository;
+        private readonly IAuditLogger auditLogger;
 
-        public EditModel(IUserRepository userRepository)
+        public EditModel(IUserRepository userRepository, IAuditLogger auditLogger)
         {
             this.userRepository = userRepository;
+            this.auditLogger = auditLogger;
+        }
+
+        private string CurrentUserId()
+        {
+            try
+            {
+                return User.Claims.Where(c => c.Type == "sub").FirstOrDefault().Value;
+            }
+            catch (NullReferenceException)
+            {
+                return "Unknown";
+            }
         }
 
         public List<SelectListItem> MemberTypes { get; } = new List<SelectListItem>
@@ -86,6 +102,7 @@ namespace Gatekeeper.Pages.UserManagement
 
             await userRepository.UpdateAsync(user);
             await userRepository.AddOrReplaceClaimAsync(user, new Claim("user_type", Input.UserType));
+            await auditLogger.log(id, $"Edited by {CurrentUserId()}");
 
             StatusMessage = "User has been updated";
 

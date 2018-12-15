@@ -1,4 +1,5 @@
-﻿using Gatekeeper.Areas.Identity.Data;
+﻿using AberFitnessAuditLogger;
+using Gatekeeper.Areas.Identity.Data;
 using Gatekeeper.Pages.UserManagement;
 using Gatekeeper.Repositories;
 using GatekeeperTest.TestUtils;
@@ -18,12 +19,14 @@ namespace GatekeeperTest.Pages.UserManagement
     public class Edit_Test
     {
         private readonly Mock<IUserRepository> userRepository;
+        private readonly Mock<IAuditLogger> auditLogger;
         private readonly EditModel page;
 
         public Edit_Test()
         {
             userRepository = new Mock<IUserRepository>();
-            page = new EditModel(userRepository.Object);
+            auditLogger = new Mock<IAuditLogger>();
+            page = new EditModel(userRepository.Object, auditLogger.Object);
         }
 
         [Theory]
